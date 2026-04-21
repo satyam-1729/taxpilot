@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sovereign Ledger | Document Vault</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e2e2e4",
+                    "surface-container-highest": "#e2e2e4",
+                    "primary": "#000666",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-tertiary-container": "#c19000",
+                    "inverse-surface": "#2f3132",
+                    "secondary-container": "#a0f399",
+                    "on-secondary-container": "#217128",
+                    "tertiary": "#251900",
+                    "on-surface": "#1a1c1d",
+                    "on-secondary-fixed": "#002204",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#bdc2ff",
+                    "tertiary-fixed": "#ffdfa0",
+                    "tertiary-container": "#3f2d00",
+                    "primary-container": "#1a237e",
+                    "surface-tint": "#4c56af",
+                    "background": "#f9f9fb",
+                    "secondary": "#1b6d24",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f3f3f5",
+                    "surface-bright": "#f9f9fb",
+                    "secondary-fixed-dim": "#88d982",
+                    "inverse-on-surface": "#f0f0f2",
+                    "on-primary-fixed": "#000767",
+                    "tertiary-fixed-dim": "#f8bd2a",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "surface": "#f9f9fb",
+                    "on-background": "#1a1c1d",
+                    "outline-variant": "#c6c5d4",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#8690ee",
+                    "outline": "#767683",
+                    "surface-container": "#eeeef0",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e0e0ff",
+                    "on-primary-fixed-variant": "#343d96",
+                    "surface-container-high": "#e8e8ea",
+                    "surface-dim": "#d9dadc",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#454652",
+                    "inverse-primary": "#bdc2ff",
+                    "on-secondary-fixed-variant": "#005312",
+                    "secondary-fixed": "#a3f69c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<nav class="bg-[#f9f9fb] dark:bg-slate-950 sticky top-0 z-40 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-high">
+<img alt="Profile" data-alt="professional male portrait with neutral background for financial user profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDWO7pvv3ErrXRzF3rp4oDboDyit9jf2-XWChgOD7qbOKME6YIRUp4UsjGfNNBEFuRVuclP6BXHG6AxTRJeSqSykjXUHD5lRigauGHCkOdWvIkvA_y9IEx6-R-nYSsupCsfzMz9BCRfSng1HaP5sUCzMLbs3BtQ1erPAvGDqMW281VOUf0PEkDJNU-w4lmpZS70Qv_-OG0i1M6HlENlcl5UYlz3vq6AjkUtVXdgxHWDzIJMmt9XwAbC3rtct9cyYlQfg7PFYhpWPoO"/>
+</div>
+<span class="font-headline font-bold text-xl tracking-tight text-[#000666] dark:text-blue-400">Sovereign Ledger</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-xl text-[#454652] hover:bg-[#f3f3f5] transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</nav>
+<main class="max-w-6xl mx-auto px-6 pb-32 pt-8">
+<!-- Hero Section: Editorial Asymmetry -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div class="max-w-xl">
+<h1 class="font-headline font-extrabold text-4xl md:text-5xl text-primary tracking-tight mb-4">Document Vault</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed">Securely upload and scan your financial records. Our AI automatically extracts data for your tax filing ritual.</p>
+</div>
+<div class="flex items-center gap-2 text-secondary font-semibold">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="font-label uppercase tracking-widest text-xs">Bank-Grade Encryption</span>
+</div>
+</header>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Upload Options: Bento Style -->
+<section class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2 group relative overflow-hidden bg-primary rounded-xl p-8 text-white flex flex-col justify-between min-h-[240px] shadow-xl shadow-primary/10">
+<div class="z-10">
+<div class="bg-white/10 w-12 h-12 rounded-lg flex items-center justify-center mb-6 backdrop-blur-md">
+<span class="material-symbols-outlined text-white">description</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-2">Upload Form 16</h3>
+<p class="text-on-primary-container text-sm max-w-xs">Scan your salary certificates and employer declarations.</p>
+</div>
+<button class="z-10 mt-6 w-fit px-6 py-3 bg-secondary-fixed text-on-secondary-fixed font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform">
+<span>Select PDF</span>
+<span class="material-symbols-outlined">upload_file</span>
+</button>
+<!-- Abstract Background Pattern -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/10 to-transparent rounded-full -mr-20 -mt-20 blur-3xl"></div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div>
+<span class="material-symbols-outlined text-primary mb-4 block">account_balance_wallet</span>
+<h4 class="font-headline text-lg font-bold text-primary">Upload P&amp;L Report</h4>
+<p class="text-on-surface-variant text-xs mt-2 leading-relaxed">Business income and expenditure statements.</p>
+</div>
+<div class="mt-8 flex items-center text-primary font-bold text-sm gap-2">
+<span>Browse Files</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div>
+<span class="material-symbols-outlined text-primary mb-4 block">receipt_long</span>
+<h4 class="font-headline text-lg font-bold text-primary">Investment Proofs</h4>
+<p class="text-on-surface-variant text-xs mt-2 leading-relaxed">80C, 80D, and other tax-saving receipts.</p>
+</div>
+<div class="mt-8 flex items-center text-primary font-bold text-sm gap-2">
+<span>Upload Images</span>
+<span class="material-symbols-outlined text-sm">photo_camera</span>
+</div>
+</div>
+</section>
+<!-- Recent Uploads: Tonal Layering -->
+<section class="lg:col-span-5 flex flex-col">
+<div class="bg-surface-container-low p-8 rounded-xl h-full">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline text-xl font-bold text-primary">Recent Activity</h3>
+<span class="text-xs font-label text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">5 Files Total</span>
+</div>
+<div class="space-y-6">
+<!-- Processing State -->
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-xl flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">clinical_notes</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h5 class="font-bold text-primary text-sm">Form_16_FY24.pdf</h5>
+<span class="text-[10px] font-bold text-primary/60 uppercase tracking-tighter">Scanning...</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mb-2">
+<div class="w-2/3 h-full bg-primary-container rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-on-surface-variant font-medium">Processing contents</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-[10px] text-on-surface-variant font-medium">2.4 MB</span>
+</div>
+</div>
+</div>
+<!-- Verified State -->
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">verified</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h5 class="font-bold text-primary text-sm">ELSS_Statement.pdf</h5>
+<div class="flex items-center gap-1 bg-secondary-container/30 px-2 py-0.5 rounded-md">
+<span class="material-symbols-outlined text-[12px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-[10px] font-bold text-on-secondary-container">98% Match</span>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-medium">Verified by SovereignAI on Oct 24</p>
+<div class="mt-2 flex gap-2">
+<span class="text-[9px] bg-surface-container-high px-2 py-1 rounded-full text-on-surface-variant font-bold">SECTION 80C</span>
+<span class="text-[9px] bg-surface-container-high px-2 py-1 rounded-full text-on-surface-variant font-bold">FY 2023-24</span>
+</div>
+</div>
+</div>
+<!-- Another Verified -->
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">verified</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h5 class="font-bold text-primary text-sm">Rent_Receipt_Q3.jpg</h5>
+<div class="flex items-center gap-1 bg-secondary-container/30 px-2 py-0.5 rounded-md">
+<span class="material-symbols-outlined text-[12px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-[10px] font-bold text-on-secondary-container">92% Match</span>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-medium">Verified by SovereignAI on Oct 22</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-12 py-3 border border-outline-variant/30 rounded-xl text-primary font-bold text-sm hover:bg-surface-container-highest transition-colors">
+                        View Archive
+                    </button>
+</div>
+</section>
+</div>
+<!-- AI Assistant Glass Card -->
+<div class="mt-16 glass-card border border-white/40 p-8 rounded-[1.5rem] flex flex-col md:flex-row items-center gap-8 shadow-2xl shadow-primary/5">
+<div class="w-20 h-20 bg-gradient-to-br from-primary to-primary-container rounded-2xl flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="font-headline text-xl font-bold text-primary mb-2">Need help with complex reports?</h4>
+<p class="text-on-surface-variant text-sm max-w-2xl">Our Digital Fiduciary AI can parse multi-page P&amp;L statements and consolidate diverse investment proofs into a single tax-ready summary.</p>
+</div>
+<button class="px-8 py-3 bg-primary text-white font-bold rounded-xl whitespace-nowrap">
+                Ask AI Assistant
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Semantic Shell) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)] z-50 rounded-t-[1.5rem]">
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body font-medium text-[11px] mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-body font-medium text-[11px] mt-1">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-body font-medium text-[11px] mt-1">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body font-medium text-[11px] mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

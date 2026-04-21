@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e2e2e4",
+                    "surface-container-highest": "#e2e2e4",
+                    "primary": "#000666",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-tertiary-container": "#c19000",
+                    "inverse-surface": "#2f3132",
+                    "secondary-container": "#a0f399",
+                    "on-secondary-container": "#217128",
+                    "tertiary": "#251900",
+                    "on-surface": "#1a1c1d",
+                    "on-secondary-fixed": "#002204",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#bdc2ff",
+                    "tertiary-fixed": "#ffdfa0",
+                    "tertiary-container": "#3f2d00",
+                    "primary-container": "#1a237e",
+                    "surface-tint": "#4c56af",
+                    "background": "#f9f9fb",
+                    "secondary": "#1b6d24",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f3f3f5",
+                    "surface-bright": "#f9f9fb",
+                    "secondary-fixed-dim": "#88d982",
+                    "inverse-on-surface": "#f0f0f2",
+                    "on-primary-fixed": "#000767",
+                    "tertiary-fixed-dim": "#f8bd2a",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "surface": "#f9f9fb",
+                    "on-background": "#1a1c1d",
+                    "outline-variant": "#c6c5d4",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#8690ee",
+                    "outline": "#767683",
+                    "surface-container": "#eeeef0",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e0e0ff",
+                    "on-primary-fixed-variant": "#343d96",
+                    "surface-container-high": "#e8e8ea",
+                    "surface-dim": "#d9dadc",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#454652",
+                    "inverse-primary": "#bdc2ff",
+                    "on-secondary-fixed-variant": "#005312",
+                    "secondary-fixed": "#a3f69c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24">
+<!-- Progress Rail -->
+<div class="fixed top-0 left-0 w-full h-1 bg-secondary-container z-[60]">
+<div class="h-full bg-secondary w-[70%]"></div>
+</div>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-6 py-4 w-full bg-[#f9f9fb] dark:bg-slate-950 docked full-width top-0 sticky z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-high flex items-center justify-center">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Professional headshot of a smiling man in a business casual attire with a soft blurred office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe2-2xj7fDz8V3iLuoTAcMPI9m_5ueR4-llAO6ERRrfo8WITJJgrfcnTTHRxxeByzuU0JM-tlEzkg88vQiKyr8SFSKX-bNzNli9osqomX8RFuziK8GB5B0qD_W2abXwVsJev3ai9B_gmfdTeB1HZe-nQE87pLt7zC1t10gR3TZEX6yTjNwY0gtyQ3AaRjAUNxTetbdLfMiJZ4dDB60V9xw0JkdRj9NmuWLqPrwwoYoMp4o7rf7jmGIdP3ix0ocBSGZ9qdBtqMKGcOA"/>
+</div>
+<h1 class="text-[#000666] dark:text-blue-400 font-['Manrope'] font-bold text-xl tracking-tight">Sovereign Ledger</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-[#f3f3f5] dark:hover:bg-slate-800 transition-colors text-[#454652] dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8">
+<!-- Hero Section: Editorial Asymmetry -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-12">
+<div class="lg:col-span-8">
+<span class="text-on-surface-variant font-label text-sm font-medium tracking-wider uppercase mb-2 block">Fiscal Year 2023-24</span>
+<h2 class="font-headline text-5xl md:text-6xl font-extrabold text-primary tracking-tight leading-tight mb-4">
+                    Your estimated tax liability is <span class="text-secondary">$12,450.00</span>
+</h2>
+<p class="text-on-surface-variant text-lg max-w-xl">
+                    We've identified 3 new potential deductions since your last login. Complete your filing to lock in these savings.
+                </p>
+</div>
+<div class="lg:col-span-4 flex flex-col items-start lg:items-end">
+<div class="bg-surface-container-low p-6 rounded-xl w-full lg:max-w-xs">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label font-semibold text-primary">Filing Progress</span>
+<span class="font-label font-bold text-secondary">70%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 70%"></div>
+</div>
+<p class="mt-4 text-xs text-on-surface-variant leading-relaxed">
+                        Next step: <span class="text-primary font-semibold">Verify Investment Proofs</span>
+</p>
+</div>
+</div>
+</div>
+<!-- Bento Grid Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Action Card 1: Upload -->
+<div class="group bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_24px_rgba(0,6,102,0.04)] hover:shadow-[0_8px_32px_rgba(0,6,102,0.08)] transition-all cursor-pointer">
+<div class="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">upload_file</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-primary mb-2">Upload Documents</h3>
+<p class="text-on-surface-variant mb-6 text-sm">Sync your Form 16, AIS, or bank statements securely.</p>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-high px-3 py-1 rounded-full text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">W-2</span>
+<span class="bg-surface-container-high px-3 py-1 rounded-full text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">1099-INT</span>
+</div>
+</div>
+<!-- Action Card 2: AI Chat -->
+<div class="group relative overflow-hidden bg-primary p-8 rounded-xl shadow-[0_4px_24px_rgba(0,6,102,0.04)] cursor-pointer">
+<!-- Background Abstract -->
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary-container rounded-full opacity-20 blur-3xl"></div>
+<div class="relative z-10">
+<div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">forum</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-white mb-2">Chat with AI</h3>
+<p class="text-white/70 mb-6 text-sm">Ask questions about deductions and tax laws in real-time.</p>
+<span class="text-white font-bold text-sm flex items-center gap-2">
+                        Start consultation <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</span>
+</div>
+</div>
+<!-- Action Card 3: Tax Savings -->
+<div class="group bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_24px_rgba(0,6,102,0.04)] hover:shadow-[0_8px_32px_rgba(0,6,102,0.08)] transition-all cursor-pointer">
+<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center text-on-secondary-container mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">payments</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-primary mb-2">View Tax Savings</h3>
+<p class="text-on-surface-variant mb-6 text-sm">Review $2,140 in potential credits we've found for you.</p>
+<div class="flex items-center gap-2 text-secondary font-bold text-sm">
+<span class="material-symbols-outlined">trending_down</span>
+<span>14% optimized</span>
+</div>
+</div>
+</div>
+<!-- Secondary Section: Document Vault & Transactions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Vault Card -->
+<div class="bg-surface-container-high rounded-xl p-8">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline text-2xl font-extrabold text-primary tracking-tight">Recent Documents</h3>
+<button class="text-primary font-bold text-sm">View Vault</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<h4 class="font-semibold text-primary">Form_16_FY24.pdf</h4>
+<p class="text-xs text-on-surface-variant">Uploaded 2 days ago • 1.2 MB</p>
+</div>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase">Verified</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<h4 class="font-semibold text-primary">Charity_Receipt_UN.jpg</h4>
+<p class="text-xs text-on-surface-variant">Uploaded 4 hours ago • 840 KB</p>
+</div>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase">Processing</span>
+</div>
+</div>
+</div>
+<!-- Insights Section -->
+<div class="bg-surface-container-low rounded-xl p-8 border-l-4 border-primary">
+<h3 class="font-headline text-2xl font-extrabold text-primary tracking-tight mb-6">AI Tax Insights</h3>
+<div class="space-y-6">
+<div class="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-secondary before:rounded-full">
+<h4 class="font-bold text-primary mb-1">Mortgage Interest Deduction</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Based on your bank statements, you may be eligible for an additional $1,200 deduction under Section 24(b).</p>
+</div>
+<div class="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-secondary before:rounded-full">
+<h4 class="font-bold text-primary mb-1">Stock Portfolio Loss</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">We noticed short-term capital losses. These can be offset against your gains to reduce your total taxable income.</p>
+</div>
+</div>
+<button class="mt-8 w-full py-4 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">auto_awesome</span>
+                    Apply All Optimizations
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 rounded-t-[1.5rem] border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2 Active: scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] font-medium text-[11px] mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-['Inter'] font-medium text-[11px] mt-1">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="font-['Inter'] font-medium text-[11px] mt-1">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[11px] mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

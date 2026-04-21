@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --color-primary: #000666;
+  --color-primary-container: #1a237e;
+  --color-secondary: #1b6d24;
+  --color-tertiary: #251900;
+  --color-surface: #f9f9fb;
+  --color-surface-container-low: #f3f3f5;
+  --color-surface-container-highest: #e2e2e4;
+  --color-on-surface: #1a1c1d;
+  --color-on-surface-variant: #454652;
+  --color-outline-variant: #c6c5d4;
+  --radius-md: 0.75rem;
+  --radius-xl: 1.5rem;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--color-surface); color: var(--color-on-surface); font-family: 'Inter', system-ui, sans-serif; }
+app-root { display: block; height: 100%; }

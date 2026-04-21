@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#e2e2e4",
+                      "surface-container-highest": "#e2e2e4",
+                      "primary": "#000666",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed": "#261a00",
+                      "on-tertiary-container": "#c19000",
+                      "inverse-surface": "#2f3132",
+                      "secondary-container": "#a0f399",
+                      "on-secondary-container": "#217128",
+                      "tertiary": "#251900",
+                      "on-surface": "#1a1c1d",
+                      "on-secondary-fixed": "#002204",
+                      "on-primary": "#ffffff",
+                      "primary-fixed-dim": "#bdc2ff",
+                      "tertiary-fixed": "#ffdfa0",
+                      "tertiary-container": "#3f2d00",
+                      "primary-container": "#1a237e",
+                      "surface-tint": "#4c56af",
+                      "background": "#f9f9fb",
+                      "secondary": "#1b6d24",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "surface-container-low": "#f3f3f5",
+                      "surface-bright": "#f9f9fb",
+                      "secondary-fixed-dim": "#88d982",
+                      "inverse-on-surface": "#f0f0f2",
+                      "on-primary-fixed": "#000767",
+                      "tertiary-fixed-dim": "#f8bd2a",
+                      "on-tertiary-fixed-variant": "#5c4300",
+                      "surface": "#f9f9fb",
+                      "on-background": "#1a1c1d",
+                      "outline-variant": "#c6c5d4",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#8690ee",
+                      "outline": "#767683",
+                      "surface-container": "#eeeef0",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#e0e0ff",
+                      "on-primary-fixed-variant": "#343d96",
+                      "surface-container-high": "#e8e8ea",
+                      "surface-dim": "#d9dadc",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#454652",
+                      "inverse-primary": "#bdc2ff",
+                      "on-secondary-fixed-variant": "#005312",
+                      "secondary-fixed": "#a3f69c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9fb] dark:bg-slate-950 flex justify-between items-center px-6 py-4 w-full docked full-width top-0 sticky z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="User profile" data-alt="close up professional headshot of a person with a friendly expression in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB64HYaIVaBjEo8l9TNahlaRLcUsaPtQhHltQJAS3IBB7UNO8hRxHSH0WC8ifYMBy6LAT5CrQFbYredXZcFimBqGEBb6WH1_2NKx09-gilKSWgLbGa9azCJFmRsbV9yAM1VBAWP2Cnzq5DwA_f7qbMaIK4Wz2bCMg8J-1wfavDSVWY5UleCenJRrTAgcpVuQLvNF7g4rFP-yFuR1TiSDqmJaIMqmWl24Vtj9Y_QIgZsficCWCKf3sFa7TBz8gFXLImDxynM5jMLf5PZ"/>
+</div>
+<h1 class="text-[#000666] dark:text-blue-400 font-['Manrope'] font-bold text-xl tracking-tight">Sovereign Ledger</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-xl text-[#454652] hover:bg-[#f3f3f5] transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 rounded-xl text-[#000666] dark:text-blue-400 hover:bg-[#f3f3f5] transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8">
+<!-- Hero Section: Total Gains Asymmetry -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+<div class="lg:col-span-8 flex flex-col justify-end p-8 rounded-[2rem] bg-gradient-to-br from-primary to-primary-container text-white min-h-[320px] relative overflow-hidden shadow-2xl">
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="relative z-10">
+<p class="font-label text-on-primary-container text-sm uppercase tracking-widest mb-2">Total Realized Gains • FY 2023-24</p>
+<h2 class="font-headline font-extrabold text-5xl md:text-6xl tracking-tighter mb-6">₹14,52,800</h2>
+<div class="flex gap-4">
+<div class="bg-secondary px-4 py-2 rounded-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-bold">+12.4% vs LY</span>
+</div>
+<div class="glass-panel px-4 py-2 rounded-xl flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">verified</span>
+<span class="font-semibold">Tax Optimized</span>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 bg-surface-container-low rounded-[2rem] p-8 flex flex-col justify-between">
+<div>
+<h3 class="font-headline font-bold text-xl text-primary mb-4">Tax Liability Est.</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-on-surface-variant font-medium">Provision</span>
+<span class="font-headline font-bold text-2xl text-on-surface">₹1,84,200</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%"></div>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+                    Generate Tax Report
+                    <span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</section>
+<!-- Capital Gains Breakdown: Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+<!-- STCG Card -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] p-6 shadow-sm border border-outline-variant/15 flex flex-col justify-between h-full">
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-error-container/30 rounded-xl">
+<span class="material-symbols-outlined text-error">timer</span>
+</div>
+<span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-1 rounded-full">TAX RATE: 15%</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface-variant text-lg">Short Term (STCG)</h4>
+<p class="text-3xl font-headline font-extrabold text-on-surface mt-2">₹4,20,500</p>
+</div>
+<div class="mt-8 flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-sm">info</span>
+<span>Held for less than 12 months</span>
+</div>
+</div>
+<!-- LTCG Card -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] p-6 shadow-sm border border-outline-variant/15 flex flex-col justify-between h-full">
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-secondary-container/30 rounded-xl">
+<span class="material-symbols-outlined text-secondary">calendar_today</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full">TAX RATE: 10%</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface-variant text-lg">Long Term (LTCG)</h4>
+<p class="text-3xl font-headline font-extrabold text-on-surface mt-2">₹10,32,300</p>
+</div>
+<div class="mt-8 flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-sm">info</span>
+<span>Exemption of ₹1L applicable</span>
+</div>
+</div>
+<!-- Tax Harvest Insight -->
+<div class="bg-[#251900] text-tertiary-fixed rounded-[1.5rem] p-6 shadow-xl flex flex-col justify-between h-full">
+<div>
+<div class="flex justify-between items-start mb-6">
+<div class="p-3 bg-tertiary-container rounded-xl">
+<span class="material-symbols-outlined text-tertiary-fixed">psychology_alt</span>
+</div>
+</div>
+<h4 class="font-headline font-bold text-lg">Tax Harvesting Insight</h4>
+<p class="text-sm opacity-80 mt-2 leading-relaxed">You can save <span class="font-bold text-tertiary-fixed-dim">₹42,000</span> by realizing ₹2.4L in current unrealized losses before March 31.</p>
+</div>
+<button class="mt-8 text-tertiary-fixed font-bold flex items-center gap-2 hover:underline">
+                    View Loss-Making Assets
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Trading Income Sources -->
+<section class="mb-12">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="font-headline font-extrabold text-3xl text-primary tracking-tight">Source Breakdown</h3>
+<p class="text-on-surface-variant mt-1">Aggregated data from linked brokerage accounts</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high px-4 py-2 rounded-lg font-label text-sm font-semibold">Equity</button>
+<button class="text-on-surface-variant px-4 py-2 rounded-lg font-label text-sm font-semibold">F&amp;O</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Broker List: Zerodha -->
+<div class="bg-surface-container-low rounded-[2rem] p-8">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[#387ed1]">account_balance_wallet</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl">Zerodha</h4>
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Kite Web/Mobile</p>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-medium">STCG</span>
+</div>
+<span class="font-bold text-on-surface">₹2,84,000</span>
+</div>
+<div class="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-medium">LTCG</span>
+</div>
+<span class="font-bold text-on-surface">₹6,12,000</span>
+</div>
+<div class="flex justify-between items-center px-4 pt-2 border-t border-outline-variant/20">
+<span class="text-on-surface-variant text-sm font-medium">Total Profit realized</span>
+<span class="font-headline font-bold text-lg">₹8,96,000</span>
+</div>
+</div>
+</div>
+<!-- Broker List: Groww -->
+<div class="bg-surface-container-low rounded-[2rem] p-8">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[#00d09c]">insert_chart</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl">Groww</h4>
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Investment App</p>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-medium">STCG</span>
+</div>
+<span class="font-bold text-on-surface">₹1,36,500</span>
+</div>
+<div class="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-medium">LTCG</span>
+</div>
+<span class="font-bold text-on-surface">₹4,20,300</span>
+</div>
+<div class="flex justify-between items-center px-4 pt-2 border-t border-outline-variant/20">
+<span class="text-on-surface-variant text-sm font-medium">Total Profit realized</span>
+<span class="font-headline font-bold text-lg">₹5,56,800</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Transaction Table / Asymmetric List -->
+<section class="bg-surface-container-lowest rounded-[2.5rem] p-10 shadow-xl border border-outline-variant/10">
+<h3 class="font-headline font-bold text-2xl mb-8">Recent Large Liquidations</h3>
+<div class="space-y-2">
+<div class="grid grid-cols-12 gap-4 px-6 py-4 bg-surface-container-low rounded-xl text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-4">
+<div class="col-span-5">Security &amp; Broker</div>
+<div class="col-span-2">Date</div>
+<div class="col-span-2">Type</div>
+<div class="col-span-3 text-right">Profit / Loss</div>
+</div>
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-6 items-center hover:bg-surface-container-low transition-colors rounded-2xl">
+<div class="col-span-5 flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary font-bold">R</div>
+<div>
+<p class="font-bold">Reliance Industries Ltd.</p>
+<p class="text-xs text-on-surface-variant">Zerodha • 120 Shares</p>
+</div>
+</div>
+<div class="col-span-2 text-on-surface-variant text-sm">Oct 24, 2023</div>
+<div class="col-span-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded">LTCG</span>
+</div>
+<div class="col-span-3 text-right font-bold text-secondary">+₹1,45,200</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-6 items-center hover:bg-surface-container-low transition-colors rounded-2xl">
+<div class="col-span-5 flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary font-bold">Z</div>
+<div>
+<p class="font-bold">Zomato Ltd.</p>
+<p class="text-xs text-on-surface-variant">Groww • 2500 Shares</p>
+</div>
+</div>
+<div class="col-span-2 text-on-surface-variant text-sm">Jan 12, 2024</div>
+<div class="col-span-2">
+<span class="px-2 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded">STCG</span>
+</div>
+<div class="col-span-3 text-right font-bold text-secondary">+₹84,000</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-6 items-center hover:bg-surface-container-low transition-colors rounded-2xl">
+<div class="col-span-5 flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary font-bold">H</div>
+<div>
+<p class="font-bold">HDFC Bank ADR</p>
+<p class="text-xs text-on-surface-variant">Zerodha • 50 Shares</p>
+</div>
+</div>
+<div class="col-span-2 text-on-surface-variant text-sm">Feb 05, 2024</div>
+<div class="col-span-2">
+<span class="px-2 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded">STCG</span>
+</div>
+<div class="col-span-3 text-right font-bold text-error">-₹12,400</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)] z-50 rounded-t-[1.5rem]">
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] font-medium text-[11px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-['Inter'] font-medium text-[11px]">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="font-['Inter'] font-medium text-[11px]">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[11px]">Profile</span>
+</a>
+</nav>
+<!-- Floating Action Button Contextual Support -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-all z-40 group">
+<span class="material-symbols-outlined">add</span>
+<span class="absolute right-full mr-4 bg-primary text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Link New Broker</span>
+</button>
+</body></html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Interviewer | Sovereign Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e2e2e4",
+                        "surface-container-highest": "#e2e2e4",
+                        "primary": "#000666",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#261a00",
+                        "on-tertiary-container": "#c19000",
+                        "inverse-surface": "#2f3132",
+                        "secondary-container": "#a0f399",
+                        "on-secondary-container": "#217128",
+                        "tertiary": "#251900",
+                        "on-surface": "#1a1c1d",
+                        "on-secondary-fixed": "#002204",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "tertiary-fixed": "#ffdfa0",
+                        "tertiary-container": "#3f2d00",
+                        "primary-container": "#1a237e",
+                        "surface-tint": "#4c56af",
+                        "background": "#f9f9fb",
+                        "secondary": "#1b6d24",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-bright": "#f9f9fb",
+                        "secondary-fixed-dim": "#88d982",
+                        "inverse-on-surface": "#f0f0f2",
+                        "on-primary-fixed": "#000767",
+                        "tertiary-fixed-dim": "#f8bd2a",
+                        "on-tertiary-fixed-variant": "#5c4300",
+                        "surface": "#f9f9fb",
+                        "on-background": "#1a1c1d",
+                        "outline-variant": "#c6c5d4",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#8690ee",
+                        "outline": "#767683",
+                        "surface-container": "#eeeef0",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e0e0ff",
+                        "on-primary-fixed-variant": "#343d96",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-dim": "#d9dadc",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#454652",
+                        "inverse-primary": "#bdc2ff",
+                        "on-secondary-fixed-variant": "#005312",
+                        "secondary-fixed": "#a3f69c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar from JSON -->
+<header class="bg-[#f9f9fb] dark:bg-slate-950 docked full-width top-0 sticky z-40 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="User profile avatar" data-alt="Close-up professional studio portrait of a confident businessman in a tailored suit, soft lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGD5468DBDWFBxGBQDgJU-tFCKPXycrTNL9KWH_JdtF0feDmW26fnarL7SbsdnitIVG0UxxUb5H64xJLdbfYnA9HbQzFN79HgX_zNv0iKh0zYcj7MWkj30QihtPHMdkuECc_bcUK3Xj0RJswPMx4UtvuisWL-zW1KC-7JnjnVhxkld_ulGWE6rW_-tAdaxsQfQnPvgmkN30cjJt8rBwPko1jfI6qF4yL1xJlA6Mo9ww3JrjgN94kfFroB-Aw9YkkUj4vaYQbGvAiMA"/>
+</div>
+<span class="font-['Manrope'] font-bold text-xl tracking-tight text-[#000666] dark:text-blue-400">Sovereign Ledger</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#454652] dark:text-slate-400 hover:bg-[#f3f3f5] dark:hover:bg-slate-800 transition-colors p-2 rounded-xl">notifications</button>
+</div>
+</header>
+<!-- Progress Rail (Design System) -->
+<div class="w-full h-1 bg-surface-container-low sticky top-[72px] z-30">
+<div class="h-full bg-secondary w-3/5 transition-all duration-500"></div>
+</div>
+<!-- Main Chat Canvas -->
+<main class="flex-1 max-w-4xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+<!-- Asymmetric Header Layout -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="max-w-xl">
+<h1 class="font-headline font-extrabold text-4xl text-primary tracking-tight leading-tight">TaxBuddy AI <span class="text-secondary">Interviewer</span></h1>
+<p class="text-on-surface-variant text-lg mt-2 font-medium">Session: Fiscal Year 2023-24</p>
+</div>
+<div class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+                Compliance Level: High
+            </div>
+</section>
+<!-- Chat History -->
+<div class="flex-1 flex flex-col gap-6">
+<!-- AI Message Bubble (The Digital Fiduciary Style) -->
+<div class="flex gap-4 items-start max-w-[85%]">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-lg">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="bg-surface-container-lowest p-6 rounded-2xl rounded-tl-none shadow-[0_-4px_24px_rgba(0,6,102,0.04)] border border-outline-variant/15">
+<p class="text-on-surface text-[1.05rem] leading-relaxed">
+                            Hello! I'm scanning your financial landscape. To ensure we capture every possible deduction, I need to look at your passive earnings.
+                        </p>
+<p class="text-on-surface font-semibold text-[1.1rem] mt-4 leading-relaxed">
+                            Did you receive any interest income from savings accounts, fixed deposits, or recurring deposits this year?
+                        </p>
+</div>
+<span class="text-[0.75rem] font-medium text-on-surface-variant flex items-center gap-1 px-1">
+                        TaxBuddy AI • 09:42 AM
+                    </span>
+</div>
+</div>
+<!-- Contextual Document Chip (Design System) -->
+<div class="ml-14">
+<div class="inline-flex items-center gap-3 px-4 py-2 bg-surface-container-high rounded-full border border-white">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">description</span>
+<span class="text-sm font-medium text-on-surface-variant italic">Reference: Form 26AS data available</span>
+</div>
+</div>
+<!-- User Response Area (Placeholder for visual flow) -->
+<div class="flex flex-col gap-6 mt-4">
+<!-- Suggestion Chips -->
+<div class="flex flex-wrap gap-3 justify-end">
+<button class="px-6 py-3 bg-surface-container-lowest text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95">
+                        Yes, I have interest income
+                    </button>
+<button class="px-6 py-3 bg-surface-container-lowest text-on-surface-variant border border-outline-variant/30 rounded-xl font-semibold hover:bg-surface-container-low transition-all shadow-sm active:scale-95">
+                        No, I don't
+                    </button>
+<button class="px-6 py-3 bg-surface-container-lowest text-on-surface-variant border border-outline-variant/30 rounded-xl font-semibold hover:bg-surface-container-low transition-all shadow-sm active:scale-95">
+                        Let me check bank statements
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Input Container -->
+<div class="sticky bottom-0 w-full glass-panel pb-10 pt-4 px-6 mt-auto">
+<div class="max-w-4xl mx-auto flex gap-3 items-center">
+<button class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:bg-surface-dim transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<div class="flex-1 relative">
+<input class="w-full bg-surface-container-lowest border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 shadow-sm" placeholder="Type your answer or provide details..." type="text"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BottomNavBar from JSON -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)] z-50 rounded-t-[1.5rem]">
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] font-medium text-[11px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-['Inter'] font-medium text-[11px]">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="forum" style="font-variation-settings: 'FILL' 1;">forum</span>
+<span class="font-['Inter'] font-medium text-[11px]">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[11px]">Profile</span>
+</a>
+</nav>
+<!-- Visual Polish: Decorative Gradient Element -->
+<div class="fixed top-0 right-0 -z-10 w-[500px] h-[500px] opacity-10 pointer-events-none">
+<div class="w-full h-full rounded-full blur-[120px]" style="background: radial-gradient(circle, #000666 0%, transparent 70%);"></div>
+</div>
+</body></html>

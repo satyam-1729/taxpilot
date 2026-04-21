@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tax Regime Comparison - Sovereign Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e2e2e4",
+                    "surface-container-highest": "#e2e2e4",
+                    "primary": "#000666",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-tertiary-container": "#c19000",
+                    "inverse-surface": "#2f3132",
+                    "secondary-container": "#a0f399",
+                    "on-secondary-container": "#217128",
+                    "tertiary": "#251900",
+                    "on-surface": "#1a1c1d",
+                    "on-secondary-fixed": "#002204",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#bdc2ff",
+                    "tertiary-fixed": "#ffdfa0",
+                    "tertiary-container": "#3f2d00",
+                    "primary-container": "#1a237e",
+                    "surface-tint": "#4c56af",
+                    "background": "#f9f9fb",
+                    "secondary": "#1b6d24",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f3f3f5",
+                    "surface-bright": "#f9f9fb",
+                    "secondary-fixed-dim": "#88d982",
+                    "inverse-on-surface": "#f0f0f2",
+                    "on-primary-fixed": "#000767",
+                    "tertiary-fixed-dim": "#f8bd2a",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "surface": "#f9f9fb",
+                    "on-background": "#1a1c1d",
+                    "outline-variant": "#c6c5d4",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#8690ee",
+                    "outline": "#767683",
+                    "surface-container": "#eeeef0",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e0e0ff",
+                    "on-primary-fixed-variant": "#343d96",
+                    "surface-container-high": "#e8e8ea",
+                    "surface-dim": "#d9dadc",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#454652",
+                    "inverse-primary": "#bdc2ff",
+                    "on-secondary-fixed-variant": "#005312",
+                    "secondary-fixed": "#a3f69c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9fb; color: #1a1c1d; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.7); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9fb] dark:bg-slate-950 flex justify-between items-center px-6 py-4 w-full docked full-width top-0 sticky z-40 bg-[#f3f3f5] dark:bg-slate-900">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a professional businessman in a navy suit with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAquSF1KSPLN_7wlkt_LzDB_Z5srWbWlrgBmUa8E8JSimG3cgv313Qx4uhCi4Z36oJ63p7QAz5wzxWpllwlV6Dcz0GnWYLGr7kyJmwtXIJsDillJGbonHGsTIhpkL1ix8NuGdF5B0A-qkv3eG6056ssc9jr4K9VGGZaJRBXbUXZqnOFStGLs03efCsragt0HPYCysPDoxt4H1pceEeRVykGNAoLl5Uz9QZbip-WLcZjS99LB2ivk2VjXXlrBGFbTBA1BqiFjNEOSaZ9"/>
+</div>
+<h1 class="text-[#000666] dark:text-blue-400 font-['Manrope'] font-bold text-xl tracking-tight font-extrabold tracking-tighter">Sovereign Ledger</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#f3f3f5] dark:hover:bg-slate-800 transition-colors p-2 rounded-full text-[#454652] dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8 pb-32">
+<!-- Progress Rail -->
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mb-12">
+<div class="h-full bg-secondary w-3/4 rounded-full"></div>
+</div>
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Hero: Asymmetric Headline -->
+<div class="lg:col-span-5 flex flex-col justify-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold font-label mb-4 w-fit">
+                    OPTIMIZATION ENGINE
+                </span>
+<h2 class="font-headline text-5xl font-extrabold text-primary leading-tight tracking-tight mb-6">
+                    Regime <br/>Intelligence.
+                </h2>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-8 max-w-md">
+                    Our fiduciary algorithm analyzed your income streams and deductions. We found a clear path to maximize your retention.
+                </p>
+<div class="bg-surface-container-low p-6 rounded-xl relative overflow-hidden border border-outline-variant/15">
+<div class="relative z-10">
+<p class="text-on-surface-variant font-label text-sm uppercase tracking-widest mb-1">Total Tax Liability</p>
+<h3 class="font-headline text-4xl font-bold text-primary">₹2,14,500</h3>
+<p class="text-secondary font-medium flex items-center mt-2">
+<span class="material-symbols-outlined text-sm mr-1">trending_down</span>
+                            Minimizing with Recommended Path
+                        </p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-9xl">analytics</span>
+</div>
+</div>
+</div>
+<!-- Right Content: Comparison Bento -->
+<div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Old Tax Regime Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:shadow-[0_24px_48px_rgba(0,6,102,0.04)] border border-outline-variant/15 flex flex-col">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h4 class="font-headline text-xl font-bold text-on-surface">Old Regime</h4>
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-tighter">Traditional with Exemptions</p>
+</div>
+<span class="material-symbols-outlined text-outline">history</span>
+</div>
+<div class="mb-8">
+<div class="flex justify-between items-end mb-1">
+<span class="text-on-surface-variant text-sm">Net Tax Payable</span>
+<span class="text-on-surface font-semibold">₹2,27,000</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%]"></div>
+</div>
+</div>
+<div class="space-y-4 mb-auto">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">Deductions Applied</p>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Standard Deduction</span>
+<span class="text-on-surface font-medium">₹50,000</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Section 80C</span>
+<span class="text-on-surface font-medium">₹1,50,000</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">HRA Exemption</span>
+<span class="text-on-surface font-medium">₹84,000</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Section 80D (Health)</span>
+<span class="text-on-surface font-medium">₹25,000</span>
+</div>
+</div>
+<button class="mt-8 w-full py-3 rounded-xl border border-primary text-primary font-bold text-sm hover:bg-surface-container-low transition-colors">
+                        Select Old Regime
+                    </button>
+</div>
+<!-- New Tax Regime Card (Recommended) -->
+<div class="bg-primary-container rounded-xl p-8 relative overflow-hidden flex flex-col ring-2 ring-primary ring-offset-4 ring-offset-background transition-all hover:scale-[1.02]">
+<!-- Recommendation Badge -->
+<div class="absolute top-0 right-0">
+<div class="bg-secondary px-4 py-2 rounded-bl-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-white text-[11px] font-bold uppercase tracking-widest">Recommended</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-10">
+<div>
+<h4 class="font-headline text-xl font-bold text-white">New Regime</h4>
+<p class="text-on-primary-container font-label text-xs uppercase tracking-tighter">Lower Slabs, Zero Exemptions</p>
+</div>
+</div>
+<div class="mb-8">
+<div class="flex justify-between items-end mb-1">
+<span class="text-on-primary-container text-sm">Net Tax Payable</span>
+<span class="text-white font-semibold">₹2,14,500</span>
+</div>
+<div class="h-1.5 w-full bg-primary/30 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[65%]"></div>
+</div>
+<p class="mt-3 text-secondary-fixed font-bold text-sm bg-secondary/20 p-2 rounded-lg text-center">
+                            Saves ₹12,500 annually
+                        </p>
+</div>
+<div class="space-y-4 mb-auto">
+<p class="text-xs font-bold text-on-primary-container uppercase tracking-widest border-b border-on-primary-container/20 pb-2">Allowed Benefits</p>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-primary-container">Standard Deduction</span>
+<span class="text-white font-medium">₹50,000</span>
+</div>
+<div class="flex items-center justify-between text-sm opacity-50">
+<span class="text-on-primary-container italic">Section 80C</span>
+<span class="text-white font-medium line-through">₹1,50,000</span>
+</div>
+<div class="flex items-center justify-between text-sm opacity-50">
+<span class="text-on-primary-container italic">HRA Exemption</span>
+<span class="text-white font-medium line-through">₹84,000</span>
+</div>
+<p class="text-[10px] text-on-primary-container/80 pt-4 leading-relaxed">
+                            Benefit from significantly lower slab rates across all income brackets. 
+                        </p>
+</div>
+<button class="mt-8 w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-bold text-sm shadow-xl shadow-primary/20">
+                        Proceed with New Regime
+                    </button>
+</div>
+</div>
+</section>
+<!-- Insights Section: Editorial Grid -->
+<section class="mt-20">
+<h3 class="font-headline text-2xl font-bold text-primary mb-8">Executive Summary</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl">
+<span class="material-symbols-outlined text-secondary mb-4" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<h5 class="font-headline font-bold text-on-surface mb-2">Investment Strategy</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Since you have minimal 80C investments, the New Regime slabs work better for your high basic pay structure.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<span class="material-symbols-outlined text-primary mb-4" style="font-variation-settings: 'FILL' 1;">description</span>
+<h5 class="font-headline font-bold text-on-surface mb-2">Filing Convenience</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">The New Regime requires 60% less documentation during filing as most exemptions are pre-baked into slabs.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl relative overflow-hidden">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-tertiary-container mb-4" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
+<h5 class="font-headline font-bold text-on-surface mb-2">Next Year Forecast</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Plan to invest ₹2L in ELSS? The Old Regime might become better by ₹4,000 next year.</p>
+</div>
+<div class="absolute right-0 top-0 w-24 h-24 bg-tertiary-fixed/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-[1.5rem] border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] font-medium text-[11px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-['Inter'] font-medium text-[11px]">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-['Inter'] font-medium text-[11px]">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] font-medium text-[11px]">Profile</span>
+</a>
+</nav>
+</body></html>

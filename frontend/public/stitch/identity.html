@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Identity Verification | The Sovereign Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f0f0f2",
+                        "outline-variant": "#c6c5d4",
+                        "on-secondary-container": "#217128",
+                        "background": "#f9f9fb",
+                        "surface-tint": "#4c56af",
+                        "on-tertiary-fixed": "#261a00",
+                        "on-error-container": "#93000a",
+                        "surface": "#f9f9fb",
+                        "error": "#ba1a1a",
+                        "primary-container": "#1a237e",
+                        "on-primary-container": "#8690ee",
+                        "surface-bright": "#f9f9fb",
+                        "tertiary-fixed": "#ffdfa0",
+                        "secondary-container": "#a0f399",
+                        "surface-dim": "#d9dadc",
+                        "secondary-fixed": "#a3f69c",
+                        "secondary": "#1b6d24",
+                        "surface-container-high": "#e8e8ea",
+                        "outline": "#767683",
+                        "on-secondary-fixed": "#002204",
+                        "secondary-fixed-dim": "#88d982",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e2e2e4",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#bdc2ff",
+                        "primary": "#000666",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#251900",
+                        "on-primary-fixed": "#000767",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "surface-container": "#eeeef0",
+                        "on-surface": "#1a1c1d",
+                        "on-secondary-fixed-variant": "#005312",
+                        "surface-container-low": "#f3f3f5",
+                        "on-tertiary-container": "#c19000",
+                        "tertiary-fixed-dim": "#f8bd2a",
+                        "on-primary-fixed-variant": "#343d96",
+                        "tertiary-container": "#3f2d00",
+                        "inverse-surface": "#2f3132",
+                        "surface-container-highest": "#e2e2e4",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "on-tertiary-fixed-variant": "#5c4300",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#454652",
+                        "primary-fixed": "#e0e0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col">
+<!-- TopAppBar Section -->
+<header class="w-full top-0 sticky bg-slate-50 dark:bg-slate-950 z-50">
+<div class="flex items-center justify-between px-6 py-4 w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-900 dark:text-blue-200" data-icon="shield">shield</span>
+<span class="text-blue-900 dark:text-blue-100 font-bold tracking-tight text-xl font-manrope">The Sovereign Ledger</span>
+</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-slate-500 dark:text-slate-400 font-manrope hover:bg-slate-200/50 transition-colors px-3 py-1 rounded-lg" href="#">Secure Login</a>
+<a class="text-blue-900 dark:text-blue-200 font-bold font-manrope hover:bg-slate-200/50 transition-colors px-3 py-1 rounded-lg" href="#">Verification</a>
+<a class="text-slate-500 dark:text-slate-400 font-manrope hover:bg-slate-200/50 transition-colors px-3 py-1 rounded-lg" href="#">Support</a>
+</nav>
+</div>
+</header>
+<!-- Main Content: Identity Verification Canvas -->
+<main class="flex-grow w-full max-w-screen-xl mx-auto px-6 py-12 md:py-20 flex flex-col md:flex-row items-center gap-16">
+<!-- Left Column: Editorial Content -->
+<div class="w-full md:w-1/2 space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                KYC Required
+            </div>
+<div class="space-y-4">
+<h1 class="text-5xl md:text-6xl font-extrabold text-primary leading-tight tracking-tight">Verify Your Identity</h1>
+<p class="text-xl text-on-surface-variant max-w-md leading-relaxed">
+                    We need your PAN and Aadhaar to securely fetch your tax data from the IT portal. Your privacy is our mandate.
+                </p>
+</div>
+<!-- Trust Badges (Bento-style layout) -->
+<div class="grid grid-cols-2 gap-4 pt-4">
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/15 flex flex-col gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+<div>
+<p class="font-headline font-bold text-primary">ISO 27001 Certified</p>
+<p class="text-xs text-on-surface-variant">Global Information Security Standards</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/15 flex flex-col gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">encrypted</span>
+<div>
+<p class="font-headline font-bold text-primary">Bank-Grade Encryption</p>
+<p class="text-xs text-on-surface-variant">AES-256 Bit Secure Protocols</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Verification Form (Layered Card) -->
+<div class="w-full md:w-5/12 relative">
+<!-- Decorative Element -->
+<div class="absolute -top-12 -right-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+<div class="bg-surface-container-lowest rounded-[2rem] p-8 md:p-10 shadow-[0_24px_48px_rgba(0,6,102,0.08)] border border-white">
+<form class="space-y-8">
+<!-- PAN Input -->
+<div class="space-y-3">
+<div class="flex justify-between items-center px-1">
+<label class="text-sm font-semibold text-primary/70 tracking-wide uppercase">Permanent Account Number</label>
+<span class="text-[10px] font-bold text-secondary-container bg-secondary px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> VERIFY
+                            </span>
+</div>
+<div class="group relative">
+<input class="w-full h-14 bg-surface-container-low border-0 rounded-xl px-4 text-lg font-bold tracking-widest text-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/50" placeholder="ABCDE1234F" type="text"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined">badge</span>
+</span>
+</div>
+</div>
+<!-- Aadhaar Input -->
+<div class="space-y-3">
+<div class="flex justify-between items-center px-1">
+<label class="text-sm font-semibold text-primary/70 tracking-wide uppercase">Aadhaar Number</label>
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div class="group relative">
+<input class="w-full h-14 bg-surface-container-low border-0 rounded-xl px-4 text-lg font-bold tracking-[0.3em] text-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/50" placeholder="XXXX XXXX XXXX" type="password"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined">fingerprint</span>
+</span>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-headline font-bold text-lg shadow-xl shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3" type="submit">
+                        Authenticate &amp; Link Data
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="text-center pt-2">
+<p class="text-xs text-on-surface-variant flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-sm">info</span>
+                            Data is fetched directly from the Income Tax Portal
+                        </p>
+</div>
+</form>
+</div>
+<!-- Floating Document Chip (Editorial Element) -->
+<div class="absolute -bottom-6 -left-6 bg-surface-container-high rounded-full px-5 py-3 shadow-lg flex items-center gap-3 border border-white">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">description</span>
+</div>
+<span class="text-sm font-bold text-primary">Form 26AS Ready</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Section (Mobile Only) -->
+<footer class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200/15 dark:border-slate-800/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)] pb-6 pt-3 px-4 flex justify-around items-center">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors font-inter text-xs font-medium">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span>Secure Login</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-2xl px-5 py-1.5 transition-all active:scale-95 duration-200 ease-in-out font-inter text-xs font-medium">
+<span class="material-symbols-outlined" data-icon="fingerprint" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+<span class="font-bold">Verification</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors font-inter text-xs font-medium">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Support</span>
+</div>
+</footer>
+<!-- Image for Visual Context (Hidden, but defined for metadata) -->
+<div class="hidden">
+<img alt="Background Texture" data-alt="Abstract geometric composition of deep navy and glass textures with subtle green light accents representing security and trust" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyAcR0h-CU5VDXW3tMhV136sjdSo-gEWnIuV7hHWlNOmR1BTGpc80s548Sh3MX66ybc7YgMpGEcBPHYxdp-ueVAszVuWcq4dokrvFc18mxa2iue0q68MOsGwylZSTjy79265eYkovEOHyIADjSx7fVgvS_GJO7AekistXjlmeywFV6xEjeFMtKiHVWYszOX-EqErtSH2KgoWDIIOqoiSo2yq489CqFb4JtDMBV0DHfJ_-gH-6vHgntFmVyzLXg7kdEqIm6HohzWPhH"/>
+</div>
+</body></html>

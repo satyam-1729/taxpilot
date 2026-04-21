@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Profile - Sovereign Ledger</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#bdc2ff",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#a3f69c",
+                    "surface-bright": "#f9f9fb",
+                    "surface-container-low": "#f3f3f5",
+                    "primary-fixed": "#e0e0ff",
+                    "surface-container-highest": "#e2e2e4",
+                    "tertiary-fixed": "#ffdfa0",
+                    "tertiary-fixed-dim": "#f8bd2a",
+                    "on-primary-fixed-variant": "#343d96",
+                    "on-surface-variant": "#454652",
+                    "inverse-surface": "#2f3132",
+                    "primary-container": "#1a237e",
+                    "secondary-container": "#a0f399",
+                    "error": "#ba1a1a",
+                    "primary": "#000666",
+                    "surface-tint": "#4c56af",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#005312",
+                    "tertiary": "#251900",
+                    "on-surface": "#1a1c1d",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e8e8ea",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f0f0f2",
+                    "outline": "#767683",
+                    "on-tertiary-container": "#c19000",
+                    "on-background": "#1a1c1d",
+                    "on-primary-fixed": "#000767",
+                    "on-primary-container": "#8690ee",
+                    "surface-dim": "#d9dadc",
+                    "secondary": "#1b6d24",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e2e2e4",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#261a00",
+                    "surface": "#f9f9fb",
+                    "secondary-fixed-dim": "#88d982",
+                    "outline-variant": "#c6c5d4",
+                    "on-secondary-fixed": "#002204",
+                    "tertiary-container": "#3f2d00",
+                    "on-secondary-container": "#217128",
+                    "inverse-primary": "#bdc2ff",
+                    "background": "#f9f9fb",
+                    "surface-container": "#eeeef0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9fb;
+            font-family: 'Inter', sans-serif;
+            color: #1a1c1d;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9fb] dark:bg-slate-950 docked full-width top-0 sticky z-40 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary/10">
+<img alt="User Profile" data-alt="professional portrait of a middle-aged south asian man wearing a navy suit, clean studio lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR4vubdLFvkYStYsL7eI29SAmqExafhtBHzJR0-fPXRGXhKpQ6T8I94BGgdzkoolI41MHEm2QyfJU4iVLs9ZdbfDC9cd3Ao5GJOli0oqOYwMMKHe0zwD29cjn8K8UfUoqmArMhwgIAjoBusQ94AbdtW4-rjhi8naqg495JWhXjlQ3hUnFQVakfqZqXzXuN8fk4j7H5pV5UIzrA6ipugL8v6VGDtDgh1_EQC2Ym41aqldALK0LGohWEvG48WGUAQsegQmMIuJPMS4bG"/>
+</div>
+<h1 class="text-[#000666] dark:text-blue-400 font-['Manrope'] font-extrabold text-xl tracking-tighter">Sovereign Ledger</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#000666] dark:text-blue-400 hover:bg-[#f3f3f5] dark:hover:bg-slate-800 transition-colors p-2 rounded-xl">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-6 mt-8 space-y-12">
+<!-- Hero Profile Section: Editorial Asymmetry -->
+<section class="flex flex-col md:flex-row gap-8 items-start md:items-end">
+<div class="flex-1">
+<p class="font-headline font-bold text-on-surface-variant/60 text-sm tracking-widest mb-2">PERSONAL ACCOUNT</p>
+<h2 class="font-headline font-extrabold text-4xl md:text-5xl text-primary tracking-tight">Aditya Sharma</h2>
+<p class="font-body text-lg text-on-surface-variant mt-2">aditya.sharma@fiduciary.in</p>
+</div>
+<div class="hidden md:block">
+<div class="bg-secondary/10 px-4 py-2 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-secondary font-semibold text-sm">KYC Verified</span>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Secure Documents: Document Vault Style -->
+<div class="md:col-span-8 bg-surface-container-low rounded-[1.5rem] p-8 space-y-8">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<h3 class="font-headline font-bold text-xl">Secure Documents</h3>
+</div>
+<span class="text-xs font-label bg-surface-container-highest px-3 py-1 rounded-full text-on-surface-variant">Last updated: 12 Oct</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- PAN Card Chip -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-xs uppercase tracking-wider text-on-surface-variant/70">PAN Card</span>
+<span class="material-symbols-outlined text-primary-container opacity-40 group-hover:opacity-100 transition-opacity">badge</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-headline font-bold text-lg tracking-widest text-primary">ABCDE****F</span>
+<button class="p-2 hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</button>
+</div>
+</div>
+<!-- Aadhaar Chip -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-xs uppercase tracking-wider text-on-surface-variant/70">Aadhaar Number</span>
+<span class="material-symbols-outlined text-primary-container opacity-40 group-hover:opacity-100 transition-opacity">fingerprint</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-headline font-bold text-lg tracking-widest text-primary">**** **** 9281</span>
+<button class="p-2 hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Secondary Progress Rail -->
+<div class="pt-4 border-t border-outline-variant/10">
+<div class="flex justify-between text-xs mb-2">
+<span class="font-label text-on-surface-variant">Compliance Health Score</span>
+<span class="font-label text-secondary font-bold">98% Perfect</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[98%]"></div>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="md:col-span-4 space-y-6">
+<!-- Linked Accounts -->
+<div class="bg-primary text-on-primary p-8 rounded-[1.5rem] relative overflow-hidden group shadow-xl">
+<div class="relative z-10">
+<h4 class="font-headline font-bold text-lg mb-4">Linked Accounts</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">account_balance</span>
+</div>
+<div class="flex-1">
+<p class="text-xs opacity-70">HDFC Bank</p>
+<p class="text-sm font-bold">**8812</p>
+</div>
+<span class="material-symbols-outlined text-secondary-container">check_circle</span>
+</div>
+</div>
+<button class="mt-6 w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl font-label text-sm transition-colors backdrop-blur-md">
+                            Manage Banks
+                        </button>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+</div>
+<!-- Security Quick Link -->
+<div class="bg-surface-container-highest p-6 rounded-[1.5rem] flex items-center justify-between hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">security</span>
+</div>
+<div>
+<p class="font-bold text-sm">Security Settings</p>
+<p class="text-xs text-on-surface-variant">2FA &amp; Recovery</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Menu List (Alternative to grid for secondary actions) -->
+<section class="mt-12 bg-surface-container-low/50 rounded-[1.5rem] p-4">
+<div class="space-y-1">
+<button class="w-full flex items-center justify-between px-6 py-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">history</span>
+<span class="font-body font-medium">Tax Filing History</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between px-6 py-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">support_agent</span>
+<span class="font-body font-medium">Contact Fiduciary Support</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between px-6 py-4 rounded-xl text-error hover:bg-error/5 transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body font-medium">Logout</span>
+</div>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[#454652]/15 shadow-[0_-4px_24px_rgba(0,6,102,0.04)] z-50 rounded-t-[1.5rem]">
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] font-medium text-[11px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-['Inter'] font-medium text-[11px]">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#454652] dark:text-slate-400 px-4 py-2 hover:text-[#000666] dark:hover:text-blue-300" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="font-['Inter'] font-medium text-[11px]">AI Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#000666] dark:text-blue-400 bg-[#f3f3f5] dark:bg-slate-800 rounded-[0.75rem] px-4 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-['Inter'] font-medium text-[11px]">Profile</span>
+</a>
+</nav>
+</body></html>
