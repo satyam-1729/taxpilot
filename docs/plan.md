@@ -49,8 +49,8 @@ Sep ──── Oct ──── Nov ──── Dec ──── Y2 Q1 ──
 
 #### 1.1 — Python Tax Engine Core (`backend/app/services/tax_engine/`)
 
-- [ ] `rules/ay2026_27.py` — all slab rates, section limits, cess rates as AY-versioned constants (zero hardcoding globally)
-- [ ] `slab_calculator.py` — new regime (7 slabs) + old regime (4 slabs)
+- [x] `rules/ay2026_27.py` — all slab rates, section limits, cess rates as AY-versioned constants (zero hardcoding globally)
+- [x] `slab_calculator.py` — new regime (7 slabs) + old regime (4 slabs)
 - [ ] Surcharge calculation (5 tiers: 10/15/25/37/25%) + 4% health & education cess
 - [ ] Section 87A rebate logic — new regime (≤₹7L → full rebate) + old regime (≤₹5L)
 - [ ] `deduction_engine.py` — 80C (₹1.5L cap), 80CCD(1B) (₹50K NPS), 80D (age-based slabs), 80E, 80G, 80TTA/80TTB
