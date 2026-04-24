@@ -7,9 +7,8 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <header class="shell-header">
-      <a routerLink="/" class="brand">
-        <span class="dot"></span>
-        <span>TaxPilot</span>
+      <a routerLink="/" class="brand" aria-label="TaxPilot home">
+        <span class="logo">TP</span>
       </a>
       <nav class="nav">
         <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
@@ -37,8 +36,14 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
       border-bottom: 1px solid rgba(198,197,212,0.4);
       position: sticky; top: 0; z-index: 10;
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 18px; color: #000666; text-decoration: none; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #000666, #1a237e); }
+    .brand { display: flex; align-items: center; text-decoration: none; }
+    .logo {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #000666; color: #ffffff;
+      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 16px;
+      letter-spacing: -0.04em;
+    }
     .nav { display: flex; gap: 6px; flex: 1; }
     .nav a, .auth-links a {
       padding: 8px 14px; border-radius: 999px;
