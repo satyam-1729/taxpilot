@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect width="256" height="256" rx="56" fill="#000666"/>
+  <text x="128" y="178" text-anchor="middle"
+        font-family="Outfit, Manrope, ui-sans-serif, system-ui, -apple-system, sans-serif"
+        font-weight="900" font-size="124" letter-spacing="-6"
+        fill="#ffffff">TP</text>
+</svg>

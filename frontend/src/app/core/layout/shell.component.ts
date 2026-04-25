@@ -1,5 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../auth/auth.service';
 
@@ -8,33 +10,35 @@ import { AuthService } from '../auth/auth.service';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
-    <header class="shell-header">
-      <a routerLink="/" class="brand" aria-label="TaxPilot home">
-        <span class="logo">TP</span>
-      </a>
+    @if (!hideHeader()) {
+      <header class="shell-header">
+        <a routerLink="/" class="brand" aria-label="TaxPilot home">
+          <span class="logo">TP</span>
+        </a>
 
-      @if (auth.isLoggedIn() && auth.isVerified()) {
-        <nav class="nav">
-          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-          <a routerLink="/documents" routerLinkActive="active">Documents</a>
-          <a routerLink="/savings" routerLinkActive="active">Savings</a>
-          <a routerLink="/investments" routerLinkActive="active">Investments</a>
-          <a routerLink="/chat" routerLinkActive="active">AI Chat</a>
-          <a routerLink="/profile" routerLinkActive="active">Profile</a>
-        </nav>
-      } @else {
-        <span class="spacer"></span>
-      }
-
-      <div class="auth-links">
-        @if (auth.isLoggedIn()) {
-          <button class="signout" (click)="signOut()">Sign out</button>
+        @if (auth.isLoggedIn() && auth.isVerified()) {
+          <nav class="nav">
+            <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+            <a routerLink="/documents" routerLinkActive="active">Documents</a>
+            <a routerLink="/savings" routerLinkActive="active">Savings</a>
+            <a routerLink="/investments" routerLinkActive="active">Investments</a>
+            <a routerLink="/chat" routerLinkActive="active">AI Chat</a>
+            <a routerLink="/profile" routerLinkActive="active">Profile</a>
+          </nav>
         } @else {
-          <a routerLink="/signin" routerLinkActive="active" class="cta">Sign in</a>
+          <span class="spacer"></span>
         }
-      </div>
-    </header>
-    <main class="shell-main">
+
+        <div class="auth-links">
+          @if (auth.isLoggedIn()) {
+            <button class="signout" (click)="signOut()">Sign out</button>
+          } @else {
+            <a routerLink="/signin" routerLinkActive="active" class="cta">Sign in</a>
+          }
+        </div>
+      </header>
+    }
+    <main class="shell-main" [class.full]="hideHeader()">
       <router-outlet />
     </main>
   `,
@@ -74,12 +78,25 @@ import { AuthService } from '../auth/auth.service';
       transition: background 0.15s;
     }
     .signout:hover { background: #f3f3f5; }
-    .shell-main { flex: 1; overflow: hidden; }
+    .shell-main { flex: 1; overflow: auto; }
+    .shell-main.full { height: 100vh; }
   `]
 })
 export class ShellComponent implements OnInit {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => e.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  protected readonly hideHeader = computed(() =>
+    /^\/(signin|identity)\b/.test(this.currentUrl()),
+  );
 
   ngOnInit(): void {
     if (this.auth.isLoggedIn()) {

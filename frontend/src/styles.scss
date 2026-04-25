@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=Outfit:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --color-primary: #000666;
@@ -18,3 +23,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; background: var(--color-surface); color: var(--color-on-surface); font-family: 'Inter', system-ui, sans-serif; }
 app-root { display: block; height: 100%; }
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
