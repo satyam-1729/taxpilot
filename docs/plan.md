@@ -1,8 +1,8 @@
 # TaxPilot — Implementation Plan & Task List
 
-> **As of:** 2026-04-21
+> **As of:** 2026-04-29
 > **Original timeline start:** Jan 2026 (we are now in Month 4)
-> **Current state:** Angular 18 frontend with routing + 12 Stitch screens done. Backend is empty. Engine not started.
+> **Current state:** Auth (Firebase + Postgres + Redis), KYC flow, and Form 16 parser (Anthropic Claude Haiku) are live end-to-end. Tax engine still pending. Original plan opened with engine-first; in practice we built auth + ingest first because they unblock everything downstream.
 > **Tax engine decision:** Pure Python — fast to build, easy to update tax rules mid-season, more than fast enough for initial scale (50K+ calculations/sec). Migrate to Cython if needed post-launch.
 
 ---
@@ -32,13 +32,54 @@ Sep ──── Oct ──── Nov ──── Dec ──── Y2 Q1 ──
 | Component | Status |
 |-----------|--------|
 | Angular 18 routing (8 lazy routes) | ✅ Done |
-| Stitch HTML screens (12 screens) | ✅ Done |
-| StitchFrame iframe component | ✅ Done |
-| Python tax engine | ❌ Not started |
-| FastAPI backend | ❌ Not started |
-| Database models + Alembic migrations | ❌ Not started |
-| Frontend services + API client | ❌ Not started |
-| Frontend auth guard | ❌ Not started |
+| Stitch HTML screens (12 screens) | ✅ Done (kept as design refs; auth + documents now native components) |
+| StitchFrame iframe component | ✅ Done (still used by dashboard/savings/etc.) |
+| Tailwind v3 + Outfit/Manrope/Inter typography | ✅ Done |
+| Brand assets — favicon.svg, logo-mark/full/wordmark.svg | ✅ Done |
+| Postgres 16 + Redis 7 (Docker, `tp-pg`, `tp-redis`) | ✅ Running |
+| FastAPI backend skeleton + CORS + lifespan | ✅ Done |
+| Alembic migrations — `0001_users`, `0002_documents` | ✅ Applied |
+| User model (firebase_uid, encrypted PAN, verified flag) | ✅ Done |
+| Document model (sha256 dedup, parsed_json, denormalized cols) | ✅ Done |
+| Firebase Admin SDK + ID token verification | ✅ Done |
+| Redis client + rate-limit helper (`incr_with_ttl`) | ✅ Done |
+| Field encryption (Fernet/AES) for PAN | ✅ Done |
+| Auth API: `POST /auth/session`, `GET /me`, `POST /auth/kyc`, `POST /auth/logout` | ✅ Done |
+| Documents API: `POST /upload`, `GET /`, `GET /{id}`, `POST /{id}/decrypt` | ✅ Done |
+| Anthropic Claude Haiku 4.5 parser with PDF input + tool-use | ✅ Done |
+| Encrypted-PDF flow (`pypdf`) — detect → password modal → decrypt → parse | ✅ Done |
+| AuthService (signals + localStorage) + 3 guards (auth/verified/guest) | ✅ Done |
+| Native signin page (Firebase Phone OTP + Google) | ✅ Done (Phone OTP awaits Blaze upgrade) |
+| Native identity (KYC) page — PAN + Aadhaar form | ✅ Done (placeholder design; Stitch redesign deferred) |
+| Shell header — auth-aware, hides on `/signin` + `/identity`, signout button | ✅ Done |
+| Documents page — drag-drop upload, recent activity, status pills, 2s polling | ✅ Done |
+| Secrets folder layout (`/secrets` at repo root, gitignored) | ✅ Done |
+| Setup guide ([docs/auth-setup.md](auth-setup.md)) | ✅ Done |
+| Python tax engine | ⏳ Partial — slab calculator + AY 2026-27 rules in place, rest TODO |
+| Dashboard / Savings / Investments / Chat / Profile wiring to backend | ❌ Not started (still iframe-based) |
+| Razorpay payments | ❌ Not started |
+| ITR XML generation | ❌ Not started |
+| AI conversation engine (Chat) | ❌ Not started |
+
+---
+
+## Progress 2026-04-21 → 2026-04-29
+
+The original plan opened with the tax engine. In practice we needed identity + document ingest before any of that could be tested, so the order was reshuffled to:
+
+1. **Foundation** — Postgres, Redis, FastAPI skeleton, secrets layout, gitignore hygiene.
+2. **Auth (Firebase)** — picked Firebase to avoid running our own SMS gateway / OAuth handshake. Backend exchanges Firebase ID tokens for our own session JWT (HS256, 30-day TTL) and upserts into `users`.
+3. **KYC flow** — `verified` flag in Postgres, set once via `POST /auth/kyc`, checked by `verifiedGuard` on every protected route. Verify-once across devices and sessions because the flag lives on the user row, not the browser.
+4. **Form 16 parser** — Anthropic Haiku 4.5 with native PDF input + forced tool-use for structured output. SHA256 dedup means re-uploading the same PDF returns the cached parse without a second API call. Encrypted PDFs are detected up front (`pypdf`) and the user is prompted for a password before any tokens are spent.
+5. **Frontend polish** — Tailwind installed, Outfit added for the brand wordmark, signin page rebuilt from the latest Stitch design with the TP monogram inside the card. Favicon + brand SVGs published.
+
+### Known deferred / blockers
+
+- **Firebase Phone OTP** — requires Blaze plan upgrade (test phone numbers also gated behind it now). Google sign-in works without Blaze and is the default path. Tracked in todos.
+- **Anthropic API key rotation** — keys pasted in chat during setup must be rotated in `console.anthropic.com` before going public.
+- **Identity (KYC) page design** — current native version is a functional placeholder; will redesign from a Stitch screen once available.
+- **DOB capture during KYC** — would let us auto-derive the standard Form 16 password (`PAN[:5] + DOB(DDMMYYYY)`) without prompting users; out of scope for now.
+- **PAN sanity check on Form 16 upload** — explicitly skipped per current decision; revisit before launch.
 
 ---
 
@@ -66,28 +107,29 @@ Sep ──── Oct ──── Nov ──── Dec ──── Y2 Q1 ──
 
 #### 1.2 — Database & Infrastructure
 
-- [ ] `requirements.txt` — FastAPI, SQLAlchemy 2.x async, Alembic, Anthropic SDK, boto3, redis, python-jose, pydantic-settings, pdf2image, pytesseract
-- [ ] PostgreSQL 16 schema — `users`, `tax_profiles`, `filings`, `documents`, `payments`, `audit_log`
-- [ ] `app/db/session.py` — async SQLAlchemy engine + session factory
-- [ ] `app/db/base.py` — declarative base
-- [ ] AES-256 column-level encryption utility for PII (PAN, Aadhaar, bank account numbers)
+- [x] `requirements.txt` — FastAPI, SQLAlchemy 2.x async, Alembic, Anthropic SDK, redis, python-jose, pydantic-settings, firebase-admin, pypdf, cryptography
+- [x] PostgreSQL schema — `users` (auth + KYC), `documents` (Form 16 + future docs)
+- [ ] PostgreSQL schema (rest) — `tax_profiles`, `filings`, `payments`, `audit_log`
+- [x] `app/db/session.py` — async SQLAlchemy engine + session factory + `Base`
+- [x] AES (Fernet) column-level encryption utility for PAN ([app/utils/crypto.py](../backend/app/utils/crypto.py))
+- [ ] Same for Aadhaar full-number + bank account numbers (currently storing only Aadhaar last4)
 - [ ] `audit_log` table — append-only, every computation logged with SHA-256 hash of input+output
-- [ ] Alembic init + first migration
-- [ ] Docker Compose — PostgreSQL 16 + Redis 7 + FastAPI in one `docker-compose.yml`
+- [x] Alembic init + first two migrations (`0001_users`, `0002_documents`)
+- [ ] Docker Compose — currently using `docker run` for Postgres + Redis. FastAPI runs natively. Compose-ify before staging.
 - [ ] GitHub Actions CI — `lint → test → build` on every push
 
 #### 1.3 — Backend API Skeleton
 
-- [ ] `app/main.py` — FastAPI app, CORS, `GET /api/health`
-- [ ] `app/core/config.py` — pydantic-settings (DATABASE_URL, REDIS_URL, S3_BUCKET, ANTHROPIC_API_KEY, JWT_SECRET)
-- [ ] `app/core/security.py` — JWT create/verify, PII field encryption/decryption
-- [ ] Auth routes — `POST /auth/send-otp` (PAN lookup), `POST /auth/verify-otp` (Aadhaar OTP → JWT)
-- [ ] User registration + profile CRUD
+- [x] `app/main.py` — FastAPI app, CORS, lifespan (boots Firebase + Redis), `GET /api/health`
+- [x] `app/core/config.py` — pydantic-settings (DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY, FIREBASE_*, FIELD_ENCRYPTION_KEY, APP_SECRET, UPLOADS_DIR, PARSER_MODEL)
+- [x] `app/core/security.py` — session JWT (HS256, 30-day) create/verify, `current_user` dependency, Firebase ID token verification via `app/services/firebase.py`
+- [x] Auth routes — Firebase-based: `POST /auth/session` (exchange ID token → our session JWT), `GET /auth/me`, `POST /auth/kyc`, `POST /auth/logout`. Replaces the old Aadhaar-OTP-only design.
+- [x] User row on first sign-in (auto-upsert from Firebase claims)
 - [ ] `tax_profile` CRUD — create, update, retrieve structured income/deduction profile
 - [ ] `POST /api/compute-tax` — calls Python engine, logs to audit_log, returns TaxResult
 - [ ] Audit logging middleware — every request/computation persisted
 - [ ] Sentry integration for error tracking
-- [ ] pytest suite — auth, compute, profile endpoints
+- [ ] pytest suite — auth, compute, profile, documents endpoints
 
 ### Milestone 2 — Backend API live with engine integrated ★
 **Target: End of April 2026 | KPI: `POST /api/compute-tax` responds < 200ms**
@@ -114,13 +156,18 @@ Sep ──── Oct ──── Nov ──── Dec ──── Y2 Q1 ──
 
 #### 2.2 — Document Parser (`app/services/parser/`)
 
-- [ ] `form16_parser.py` — PDF → images (`pdf2image`) → Claude Vision → Part A + Part B JSON
-- [ ] Structured mapper — Form 16 JSON fields → `TaxProfile` fields
-- [ ] Test against 50+ Form 16 formats from different employers
+- [x] `form16.py` — Anthropic Claude Haiku 4.5 with native PDF input + forced tool-use for structured output. Schema mirrors `Form16Data` (employer, employee, TDS quarters, salary components, Section 10 / 16 / Chapter VI-A line items with section codes, totals).
+- [x] `pdf.py` — `is_encrypted()` + `decrypt_pdf()` via `pypdf`. Detection happens at upload time so we don't burn tokens on locked PDFs.
+- [x] Encrypted-PDF UX — backend stores encrypted file as-is, marks row `needs_password`; frontend prompts for password; `POST /documents/{id}/decrypt` validates password, overwrites with decrypted bytes, schedules background parse.
+- [x] SHA256 dedup per user — re-uploading the same PDF returns the cached parse, zero Anthropic re-calls.
+- [x] Background-task parse with status state machine: `queued → parsing → parsed | failed`. Frontend polls every 2s while pending.
+- [ ] Structured mapper — Form 16 `parsed_json` → `TaxProfile` fields (waits on `tax_profiles` table)
+- [ ] Test against 50+ Form 16 formats from different employers (we've validated a couple manually so far)
 - [ ] `ais_parser.py` — 26AS/AIS JSON from IT portal (manual upload fallback)
 - [ ] Cross-validation — Form 16 vs 26AS, flag mismatches automatically
-- [ ] Confidence scoring — flag < 80% confidence extractions for user review
-- [ ] Edge cases: scanned PDFs, multi-page, password-protected PDFs
+- [ ] Confidence scoring — flag < 80% confidence extractions for user review (currently captured per-token from Anthropic but not yet surfaced in UI)
+- [ ] Auto-derive Form 16 password from KYC fields (`PAN[:5] + DOB(DDMMYYYY)`) — needs DOB on user record
+- [ ] PAN sanity check — verify Form 16 employee PAN matches user's verified PAN (deferred per current decision)
 
 #### 2.3 — ITR Form Router & XML Generator (`app/services/efiling/`)
 
@@ -132,13 +179,15 @@ Sep ──── Oct ──── Nov ──── Dec ──── Y2 Q1 ──
 
 #### 2.4 — Frontend — Wire All Pages to Backend
 
-- [ ] `environments/environment.ts` + `environment.prod.ts` — `apiUrl` config
-- [ ] `core/services/api.service.ts` — typed HttpClient wrapper with JWT interceptor
-- [ ] `core/services/auth.service.ts` — login state BehaviorSubject, token storage (httpOnly cookie preferred)
-- [ ] `core/guards/auth.guard.ts` — redirect to `/auth/signin` if no valid token
-- [ ] Wire Signin page → `POST /auth/send-otp`
-- [ ] Wire Identity page → `POST /auth/verify-otp` → store token → redirect to dashboard
-- [ ] Wire Documents page → drag-and-drop upload → `POST /documents/upload` → show parse status
+- [x] `environments/environment.ts` + `environment.prod.ts` — `apiBaseUrl` + Firebase web SDK config
+- [x] `core/auth/auth.service.ts` — Angular signals (`user`, `token`, `isLoggedIn`, `isVerified`) + localStorage persistence + Firebase phone/Google methods + backend session exchange
+- [x] `core/auth/guards.ts` — `authGuard`, `verifiedGuard`, `guestGuard`. All protected routes wear `verifiedGuard`.
+- [x] `core/documents/documents.api.ts` — typed fetch wrappers (uploadDocument, listDocuments, getDocument, submitPassword)
+- [ ] Generic API service / interceptor — currently each feature has its own typed `fetch` wrappers. Consider consolidating into an `ApiService` once we have 3+ feature areas.
+- [x] Wire Signin page → Firebase Phone OTP + Google → `POST /auth/session` → route to `/identity` or `/dashboard` based on `verified`
+- [x] Wire Identity page → `POST /auth/kyc` → set verified → redirect to dashboard
+- [x] Wire Documents page → drag-and-drop upload → `POST /documents/upload` → password modal if encrypted → polling for status → recent activity with green tick
+- [ ] Switch to httpOnly-cookie session token (currently localStorage; acceptable for dev, harden before prod)
 - [ ] Wire Chat page → SSE streaming from `POST /chat/message` with message bubbles
 - [ ] Wire Dashboard → `GET /filings/latest` → real income breakdown + regime comparison card
 - [ ] Wire Savings page → `GET /savings/recommendations` → AI suggestions with ₹ impact

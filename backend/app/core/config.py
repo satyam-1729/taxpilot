@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     firebase_service_account_path: str = Field(default="./firebase-service-account.json")
     firebase_project_id: str = Field(default="")
 
+    anthropic_api_key: str = Field(default="", description="Claude API key for document parsing")
+    parser_model: str = Field(default="claude-haiku-4-5-20251001")
+
+    uploads_dir: str = Field(default="../secrets/uploads", description="Where uploaded PDFs are stored on disk (dev)")
+
     field_encryption_key: str = Field(
         default="dev-key-change-me-please-32-bytes!",
         description="32-byte key used for encrypting PAN/Aadhaar at rest",
