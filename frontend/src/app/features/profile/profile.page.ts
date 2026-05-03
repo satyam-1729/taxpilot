@@ -22,17 +22,6 @@ const ACCOUNT_NUMBER_RE = /^\d{6,18}$/;
   imports: [CommonModule, DatePipe, FormsModule],
   template: `
     <main class="max-w-3xl mx-auto px-6 py-10">
-      <!-- Hero -->
-      <section class="mb-10">
-        <h1 class="font-display text-4xl md:text-5xl font-extrabold text-primary tracking-tight mb-3">
-          Profile
-        </h1>
-        <p class="text-on-surface-variant text-lg leading-relaxed">
-          Your account, identity, and refund accounts. Sensitive numbers are masked
-          for safety.
-        </p>
-      </section>
-
       @if (!user()) {
         <div class="bg-surface-container-low rounded-2xl p-10 text-center text-on-surface-variant">
           Loading…
