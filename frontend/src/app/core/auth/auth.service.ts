@@ -16,6 +16,9 @@ export interface AuthUser {
   phone: string | null;
   email: string | null;
   name: string | null;
+  dob: string | null;
+  pan_last4: string | null;
+  aadhaar_last4: string | null;
   verified: boolean;
   verified_at: string | null;
 }

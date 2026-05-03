@@ -67,7 +67,10 @@ async def complete_kyc(
     if user.verified:
         return UserOut.model_validate(user)
 
+    user.name = body.name
+    user.dob = body.dob
     user.pan_encrypted = encrypt_field(body.pan)
+    user.pan_last4 = body.pan[-4:]
     user.aadhaar_last4 = body.aadhaar[-4:]
     user.verified = True
     user.verified_at = datetime.now(tz=timezone.utc)

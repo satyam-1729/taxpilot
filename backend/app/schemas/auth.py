@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -22,6 +22,9 @@ class UserOut(BaseModel):
     phone: str | None
     email: str | None
     name: str | None
+    dob: date | None
+    pan_last4: str | None
+    aadhaar_last4: str | None
     verified: bool
     verified_at: datetime | None
 
@@ -30,8 +33,18 @@ class UserOut(BaseModel):
 
 
 class KycRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200, description="Full legal name")
+    dob: date = Field(..., description="Date of birth (YYYY-MM-DD)")
     pan: str = Field(..., description="10-character PAN, e.g. ABCDE1234F")
     aadhaar: str = Field(..., description="12-digit Aadhaar number, no spaces")
+
+    @field_validator("name")
+    @classmethod
+    def _name_clean(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Name cannot be empty")
+        return v
 
     @field_validator("pan")
     @classmethod

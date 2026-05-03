@@ -8,6 +8,12 @@ import { AuthService } from '../../../core/auth/auth.service';
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const AADHAAR_RE = /^\d{12}$/;
 
+// Reasonable bounds: at least 18 years old, no older than 120
+const TODAY = new Date();
+const MIN_DOB = new Date(TODAY.getFullYear() - 120, 0, 1).toISOString().slice(0, 10);
+const MAX_DOB = new Date(TODAY.getFullYear() - 18, TODAY.getMonth(), TODAY.getDate())
+  .toISOString().slice(0, 10);
+
 @Component({
   selector: 'app-identity-page',
   standalone: true,
@@ -18,11 +24,36 @@ const AADHAAR_RE = /^\d{12}$/;
         <span class="badge">One-time KYC</span>
         <h1>Verify your identity</h1>
         <p class="lede">
-          We need your PAN and Aadhaar to file your tax return. Stored encrypted —
-          you only do this once.
+          A one-time check before we file your taxes. Stored encrypted — you won't
+          be asked again.
         </p>
 
         @if (error()) { <p class="error">{{ error() }}</p> }
+
+        <label>
+          <span>Full name (as on PAN)</span>
+          <input
+            type="text"
+            placeholder="Your full legal name"
+            maxlength="200"
+            [(ngModel)]="name"
+            [disabled]="busy()"
+            autocomplete="name"
+          />
+        </label>
+
+        <label>
+          <span>Date of birth</span>
+          <input
+            type="date"
+            [min]="MIN_DOB"
+            [max]="MAX_DOB"
+            [(ngModel)]="dob"
+            [disabled]="busy()"
+            autocomplete="bday"
+          />
+          <small>Used to auto-unlock password-protected Form 16 PDFs later.</small>
+        </label>
 
         <label>
           <span>PAN</span>
@@ -108,13 +139,23 @@ const AADHAAR_RE = /^\d{12}$/;
 export class IdentityPage {
   busy = signal(false);
   error = signal<string | null>(null);
+  name = '';
+  dob = '';   // YYYY-MM-DD from <input type="date">
   pan = '';
   aadhaar = '';
+
+  readonly MIN_DOB = MIN_DOB;
+  readonly MAX_DOB = MAX_DOB;
 
   constructor(private auth: AuthService, private router: Router) {}
 
   canSubmit(): boolean {
-    return PAN_RE.test(this.pan.trim()) && AADHAAR_RE.test(this.rawAadhaar());
+    return (
+      this.name.trim().length > 0 &&
+      this.isValidDob(this.dob) &&
+      PAN_RE.test(this.pan.trim()) &&
+      AADHAAR_RE.test(this.rawAadhaar())
+    );
   }
 
   formatAadhaar(value: string): void {
@@ -131,7 +172,12 @@ export class IdentityPage {
     }
     this.busy.set(true);
     try {
-      const user = await postKyc(token, this.pan.trim(), this.rawAadhaar());
+      const user = await postKyc(token, {
+        name: this.name.trim(),
+        dob: this.dob,
+        pan: this.pan.trim(),
+        aadhaar: this.rawAadhaar(),
+      });
       this.auth.setUser(user);
       this.router.navigateByUrl('/dashboard');
     } catch (e: any) {
@@ -148,5 +194,10 @@ export class IdentityPage {
 
   private rawAadhaar(): string {
     return this.aadhaar.replace(/\s+/g, '');
+  }
+
+  private isValidDob(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    return value >= MIN_DOB && value <= MAX_DOB;
   }
 }
