@@ -212,6 +212,30 @@ async def get_document(
     return DocumentOut.model_validate(row)
 
 
+@router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document(
+    doc_id: UUID,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Document).where(Document.id == doc_id, Document.user_id == user.id)
+    )
+    row = result.scalar_one_or_none()
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    # Best-effort delete the underlying file. DB row removal is the source of truth.
+    storage = Path(row.storage_path)
+    try:
+        storage.unlink(missing_ok=True)
+    except OSError as e:
+        logger.warning("Failed to remove %s: %s", storage, e)
+
+    await db.delete(row)
+    await db.commit()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Background task — runs after the response is sent to the browser
 # ─────────────────────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import {
   DocStatus,
   DocType,
   DocumentRow,
+  deleteDocument,
   listDocuments,
   submitPassword,
   uploadDocument,
@@ -210,12 +211,61 @@ import {
                     </button>
                   }
                 </div>
+
+                <!-- Delete -->
+                <button
+                  type="button"
+                  class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition shrink-0"
+                  (click)="openDeleteModal(row)"
+                  [disabled]="busyDeleteId() === row.id"
+                  title="Delete document"
+                  aria-label="Delete document"
+                >
+                  <span class="material-symbols-outlined text-[20px]">delete</span>
+                </button>
               </li>
             }
           </ul>
         }
       </section>
     </main>
+
+    <!-- Delete confirmation modal -->
+    @if (deleteCandidate(); as victim) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm"
+           (click)="closeDeleteModal()">
+        <div class="bg-surface-container-lowest rounded-3xl p-8 max-w-md w-full shadow-2xl"
+             (click)="$event.stopPropagation()">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-error-container flex items-center justify-center">
+              <span class="material-symbols-outlined text-on-error-container" style="font-variation-settings:'FILL' 1;">warning</span>
+            </div>
+            <h3 class="font-headline font-bold text-primary text-xl">Delete this document?</h3>
+          </div>
+          <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+            <span class="font-semibold text-primary">{{ victim.file_name }}</span> and its parsed
+            data will be removed permanently. You'll need to re-upload to use it again.
+          </p>
+          @if (deleteError()) {
+            <p class="text-error text-sm bg-error-container/40 rounded-xl px-3 py-2 mb-4">{{ deleteError() }}</p>
+          }
+          <div class="flex gap-3">
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl bg-surface-container-low text-on-surface font-headline font-semibold hover:bg-surface-container transition"
+              (click)="closeDeleteModal()"
+              [disabled]="deleting()"
+            >Cancel</button>
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl bg-error text-on-error font-headline font-bold shadow-lg shadow-error/10 hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="confirmDelete()"
+              [disabled]="deleting()"
+            >{{ deleting() ? 'Deleting…' : 'Delete' }}</button>
+          </div>
+        </div>
+      </div>
+    }
 
     <!-- Password modal -->
     @if (passwordPromptDocId()) {
@@ -291,6 +341,12 @@ export class DocumentsPage implements OnInit, OnDestroy {
   readonly passwordError = signal<string | null>(null);
   readonly decrypting = signal(false);
   passwordInput = '';
+
+  // Delete confirmation state
+  readonly deleteCandidate = signal<DocumentRow | null>(null);
+  readonly deleting = signal(false);
+  readonly deleteError = signal<string | null>(null);
+  readonly busyDeleteId = signal<string | null>(null);
 
   readonly anyPending = computed(() =>
     this.rows().some(r => r.status === 'queued' || r.status === 'parsing'),
@@ -410,6 +466,42 @@ export class DocumentsPage implements OnInit, OnDestroy {
     this.passwordError.set(null);
     this.passwordInput = '';
   }
+
+  // ── Delete modal ─────────────────────────────────────────────────────────
+
+  openDeleteModal(row: DocumentRow): void {
+    this.deleteError.set(null);
+    this.deleteCandidate.set(row);
+  }
+
+  closeDeleteModal(): void {
+    if (this.deleting()) return;
+    this.deleteCandidate.set(null);
+    this.deleteError.set(null);
+  }
+
+  async confirmDelete(): Promise<void> {
+    const victim = this.deleteCandidate();
+    const token = this.auth.token();
+    if (!victim || !token) return;
+    this.deleteError.set(null);
+    this.deleting.set(true);
+    this.busyDeleteId.set(victim.id);
+    try {
+      await deleteDocument(token, victim.id);
+      this.deleteCandidate.set(null);
+      // Optimistic remove + refresh from server
+      this.rows.set(this.rows().filter(r => r.id !== victim.id));
+      await this.refresh();
+    } catch (e: any) {
+      this.deleteError.set(e?.message ?? 'Could not delete the document.');
+    } finally {
+      this.deleting.set(false);
+      this.busyDeleteId.set(null);
+    }
+  }
+
+  // ── Password modal ───────────────────────────────────────────────────────
 
   async confirmPassword(): Promise<void> {
     const docId = this.passwordPromptDocId();

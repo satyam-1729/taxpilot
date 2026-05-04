@@ -80,6 +80,16 @@ export async function getDocument(token: string, id: string): Promise<DocumentRo
   return res.json();
 }
 
+export async function deleteDocument(token: string, id: string): Promise<void> {
+  const res = await fetch(`${environment.apiBaseUrl}/documents/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  });
+  if (!res.ok && res.status !== 204) {
+    throw new Error(await res.text().catch(() => res.statusText));
+  }
+}
+
 export async function submitPassword(token: string, id: string, password: string): Promise<UploadResponse> {
   const res = await fetch(`${environment.apiBaseUrl}/documents/${id}/decrypt`, {
     method: 'POST',
