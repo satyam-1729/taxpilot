@@ -1,14 +1,17 @@
 import { environment } from '../../../environments/environment';
 
 export type DocStatus = 'queued' | 'parsing' | 'parsed' | 'failed' | 'needs_password';
+export type DocType = 'form16' | 'capital_gains' | 'unknown';
 
 export interface DocumentRow {
   id: string;
-  doc_type: string;
+  doc_type: DocType;
   status: DocStatus;
   file_name: string;
   file_size_bytes: number;
   ay: string | null;
+  fy: string | null;
+  // Form 16 fields
   employer_name: string | null;
   employee_pan: string | null;
   gross_salary: string | null;
@@ -16,6 +19,16 @@ export interface DocumentRow {
   taxable_income: string | null;
   tax_payable: string | null;
   regime: string | null;
+  // Capital gains fields
+  broker: string | null;
+  stcg_111a: string | null;
+  stcg_non_equity: string | null;
+  ltcg_112a: string | null;
+  ltcg_non_equity: string | null;
+  dividends_total: string | null;
+  exempt_income_total: string | null;
+  total_invested: string | null;
+  // Common
   parsed_json: any | null;
   error: string | null;
   created_at: string;
@@ -32,17 +45,25 @@ function authHeaders(token: string): HeadersInit {
   return { authorization: `Bearer ${token}` };
 }
 
-export async function uploadDocument(token: string, file: File, docType = 'form16'): Promise<UploadResponse> {
+export async function uploadDocument(token: string, file: File): Promise<UploadResponse> {
   const form = new FormData();
   form.append('file', file);
-  const res = await fetch(`${environment.apiBaseUrl}/documents/upload?doc_type=${docType}`, {
+  const res = await fetch(`${environment.apiBaseUrl}/documents/upload`, {
     method: 'POST',
     headers: authHeaders(token),
     body: form,
   });
   if (!res.ok) {
-    const detail = await res.text().catch(() => res.statusText);
-    throw new Error(detail || `Upload failed (${res.status})`);
+    let detail: string;
+    try {
+      const body = await res.json();
+      detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+    } catch {
+      detail = await res.text().catch(() => res.statusText);
+    }
+    const err = new Error(detail || `Upload failed (${res.status})`);
+    (err as any).status = res.status;
+    throw err;
   }
   return res.json();
 }
@@ -66,8 +87,16 @@ export async function submitPassword(token: string, id: string, password: string
     body: JSON.stringify({ password }),
   });
   if (!res.ok) {
-    const detail = await res.text().catch(() => res.statusText);
-    throw new Error(detail || `Decryption failed (${res.status})`);
+    let detail: string;
+    try {
+      const body = await res.json();
+      detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+    } catch {
+      detail = await res.text().catch(() => res.statusText);
+    }
+    const err = new Error(detail || `Decryption failed (${res.status})`);
+    (err as any).status = res.status;
+    throw err;
   }
   return res.json();
 }

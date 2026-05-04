@@ -76,6 +76,8 @@ class DocumentOut(BaseModel):
     file_name: str
     file_size_bytes: int
     ay: str | None
+    fy: str | None = None
+    # Form 16 fields
     employer_name: str | None
     employee_pan: str | None
     gross_salary: Decimal | None
@@ -83,6 +85,16 @@ class DocumentOut(BaseModel):
     taxable_income: Decimal | None
     tax_payable: Decimal | None
     regime: str | None
+    # Capital gains fields
+    broker: str | None = None
+    stcg_111a: Decimal | None = None
+    stcg_non_equity: Decimal | None = None
+    ltcg_112a: Decimal | None = None
+    ltcg_non_equity: Decimal | None = None
+    dividends_total: Decimal | None = None
+    exempt_income_total: Decimal | None = None
+    total_invested: Decimal | None = None
+    # Common
     parsed_json: dict[str, Any] | None
     error: str | None
     created_at: datetime

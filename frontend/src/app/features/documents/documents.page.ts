@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/auth/auth.service';
 import {
-  DocumentRow,
   DocStatus,
+  DocType,
+  DocumentRow,
   listDocuments,
   submitPassword,
   uploadDocument,
@@ -23,8 +24,9 @@ import {
           Document Vault
         </h1>
         <p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">
-          Upload your Form 16 and we'll extract everything automatically — salary breakdown,
-          TDS quarters, deductions with section codes — ready for your filing.
+          Drop any tax document — we'll figure out what it is and pull the numbers
+          automatically. Form 16 (TDS), broker P&L (Zerodha, Groww, Upstox…),
+          CAMS/KFinTech CAS — all handled.
         </p>
       </section>
 
@@ -42,16 +44,16 @@ import {
             <span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
           </div>
           <div>
-            <h3 class="font-headline font-bold text-primary text-xl">Upload Form 16</h3>
+            <h3 class="font-headline font-bold text-primary text-xl">Upload tax documents</h3>
             <p class="text-on-surface-variant text-sm mt-1">
-              Drop a PDF here, or pick one from your computer. Up to 15 MB.
+              Drop a PDF or XLSX here, or pick one from your computer. Up to 15 MB. We'll detect the type.
             </p>
           </div>
 
           <input
             #fileInput
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             class="hidden"
             (change)="onFilePicked($event)"
           />
@@ -61,7 +63,7 @@ import {
             (click)="fileInput.click()"
             [disabled]="uploading()"
           >
-            {{ uploading() ? 'Uploading…' : 'Choose PDF' }}
+            {{ uploading() ? 'Uploading…' : 'Choose file' }}
           </button>
 
           @if (uploadError()) {
@@ -132,7 +134,11 @@ import {
                       {{ statusLabel(row.status) }}
                     </span>
                   </div>
-                  <div class="text-sm text-on-surface-variant mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                  <div class="text-sm text-on-surface-variant mt-1 flex flex-wrap gap-x-3 gap-y-1 items-center">
+                    <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                          [ngClass]="docTypePill(row.doc_type)">
+                      {{ docTypeLabel(row.doc_type) }}
+                    </span>
                     <span>{{ formatBytes(row.file_size_bytes) }}</span>
                     <span>•</span>
                     <span>{{ row.created_at | date:'MMM d, h:mm a' }}</span>
@@ -140,12 +146,17 @@ import {
                       <span>•</span>
                       <span class="truncate">{{ row.employer_name }}</span>
                     }
+                    @if (row.broker) {
+                      <span>•</span>
+                      <span class="truncate capitalize">{{ row.broker }}</span>
+                    }
                     @if (row.ay) {
                       <span>•</span>
                       <span>AY {{ row.ay }}</span>
                     }
                   </div>
-                  @if (row.status === 'parsed') {
+
+                  @if (row.status === 'parsed' && row.doc_type === 'form16') {
                     <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                       <div>
                         <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Gross salary</div>
@@ -162,6 +173,27 @@ import {
                       <div>
                         <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Tax payable</div>
                         <div class="font-headline font-bold text-primary">{{ formatINR(row.tax_payable) }}</div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (row.status === 'parsed' && row.doc_type === 'capital_gains') {
+                    <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">STCG (equity)</div>
+                        <div class="font-headline font-bold text-primary">{{ formatINR(row.stcg_111a) }}</div>
+                      </div>
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">LTCG (equity)</div>
+                        <div class="font-headline font-bold text-primary">{{ formatINR(row.ltcg_112a) }}</div>
+                      </div>
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Dividends</div>
+                        <div class="font-headline font-bold text-primary">{{ formatINR(row.dividends_total) }}</div>
+                      </div>
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Exempt income</div>
+                        <div class="font-headline font-bold text-primary">{{ formatINR(row.exempt_income_total) }}</div>
                       </div>
                     </div>
                   }
@@ -329,8 +361,13 @@ export class DocumentsPage implements OnInit, OnDestroy {
   }
 
   private async upload(file: File): Promise<void> {
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      this.uploadError.set('Only PDF files are supported.');
+    const name = file.name.toLowerCase();
+    const isPdf = file.type === 'application/pdf' || name.endsWith('.pdf');
+    const isXlsx =
+      file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      name.endsWith('.xlsx');
+    if (!isPdf && !isXlsx) {
+      this.uploadError.set('Only PDF or XLSX files are supported.');
       return;
     }
     const token = this.auth.token();
@@ -424,6 +461,22 @@ export class DocumentsPage implements OnInit, OnDestroy {
       failed: 'bg-error-container text-on-error-container',
       needs_password: 'bg-tertiary-container/30 text-tertiary-container',
     }[s];
+  }
+
+  docTypeLabel(t: DocType): string {
+    return {
+      form16: 'Form 16',
+      capital_gains: 'Capital gains',
+      unknown: 'Unknown',
+    }[t];
+  }
+
+  docTypePill(t: DocType): string {
+    return {
+      form16: 'bg-primary-fixed text-primary',
+      capital_gains: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
+      unknown: 'bg-surface-container-high text-on-surface-variant',
+    }[t];
   }
 
   formatBytes(bytes: number): string {

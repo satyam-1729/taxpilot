@@ -36,6 +36,16 @@ class Document(Base):
     tax_payable: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     regime: Mapped[str | None] = mapped_column(String(8))
 
+    # Capital gains denormalized fields (doc_type='capital_gains')
+    broker: Mapped[str | None] = mapped_column(String(64))
+    stcg_111a: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    stcg_non_equity: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    ltcg_112a: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    ltcg_non_equity: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    dividends_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    exempt_income_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+    total_invested: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
+
     parsed_json: Mapped[dict | None] = mapped_column(JSONB)
     confidence: Mapped[dict | None] = mapped_column(JSONB)
     parser_provider: Mapped[str | None] = mapped_column(String(32))

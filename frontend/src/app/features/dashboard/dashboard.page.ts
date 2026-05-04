@@ -98,9 +98,10 @@ interface BarOptions {
           <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-fixed flex items-center justify-center mb-4">
             <span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
           </div>
-          <h2 class="font-headline font-bold text-primary text-xl">No data yet</h2>
+          <h2 class="font-headline font-bold text-primary text-xl">No Form 16 yet</h2>
           <p class="text-on-surface-variant mt-2 max-w-sm mx-auto">
             Upload your Form 16 in the Documents tab and your tax dashboard will appear here automatically.
+            Capital gains and broker P&amp;L statements live on the Investments tab.
           </p>
           <a routerLink="/documents" class="inline-block mt-6 px-6 py-3 rounded-xl bg-primary text-white font-headline font-bold text-sm hover:opacity-95 transition">
             Go to Documents
@@ -244,21 +245,23 @@ export class DashboardPage implements OnInit {
 
   selectedFy = '';
 
+  /** Dashboard scope: Form 16 documents only. Capital gains live on /investments. */
+  readonly form16Docs = computed(() =>
+    this.docs().filter(d => d.doc_type === 'form16' && d.status === 'parsed'),
+  );
+
   readonly availableFys = computed(() => {
     const fys = new Set<string>();
-    for (const d of this.docs()) {
-      if (d.status === 'parsed' && d.ay) {
-        // Convert AY (assessment year, e.g. 2026-27) → FY (financial year, 2025-26).
-        // Form 16 sometimes has only AY. Prefer fy field if backend provided it; else derive.
-        const fy = (d.parsed_json?.fy as string) || ayToFy(d.ay);
-        if (fy) fys.add(fy);
-      }
+    for (const d of this.form16Docs()) {
+      if (!d.ay) continue;
+      const fy = (d.parsed_json?.fy as string) || ayToFy(d.ay);
+      if (fy) fys.add(fy);
     }
     return Array.from(fys).sort().reverse();
   });
 
   readonly sourceDocs = computed(() =>
-    this.docs().filter(d => d.status === 'parsed' && this.fyOf(d) === this.selectedFy),
+    this.form16Docs().filter(d => this.fyOf(d) === this.selectedFy),
   );
 
   readonly agg = computed(() => {
