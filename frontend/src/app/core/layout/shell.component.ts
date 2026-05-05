@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../auth/auth.service';
+import { privacyMode, togglePrivacy } from '../ui/privacy';
 
 @Component({
   selector: 'app-shell',
@@ -31,6 +32,15 @@ import { AuthService } from '../auth/auth.service';
 
         <div class="auth-links">
           @if (auth.isLoggedIn()) {
+            <button
+              class="icon-btn"
+              type="button"
+              (click)="togglePrivacy()"
+              [attr.aria-pressed]="privacyOn()"
+              [title]="privacyOn() ? 'Show numbers' : 'Hide numbers'"
+            >
+              <span class="material-symbols-outlined">{{ privacyOn() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
             <button class="signout" (click)="signOut()">Sign out</button>
           } @else {
             <a routerLink="/signin" routerLinkActive="active" class="cta">Sign in</a>
@@ -78,6 +88,15 @@ import { AuthService } from '../auth/auth.service';
       transition: background 0.15s;
     }
     .signout:hover { background: #f3f3f5; }
+    .icon-btn {
+      background: none; border: 0; cursor: pointer;
+      width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px; color: #454652;
+      transition: background 0.15s, color 0.15s;
+    }
+    .icon-btn:hover { background: #f3f3f5; color: #000666; }
+    .icon-btn[aria-pressed="true"] { background: #e0e0ff; color: #000666; }
+    .icon-btn .material-symbols-outlined { font-size: 20px; }
     .shell-main { flex: 1; overflow: auto; }
     .shell-main.full { height: 100vh; }
   `]
@@ -97,6 +116,9 @@ export class ShellComponent implements OnInit {
   protected readonly hideHeader = computed(() =>
     /^\/(signin|identity)\b/.test(this.currentUrl()),
   );
+
+  protected readonly privacyOn = privacyMode;
+  protected readonly togglePrivacy = togglePrivacy;
 
   ngOnInit(): void {
     if (this.auth.isLoggedIn()) {

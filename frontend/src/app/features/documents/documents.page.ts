@@ -12,6 +12,7 @@ import {
   submitPassword,
   uploadDocument,
 } from '../../core/documents/documents.api';
+import { formatINR as formatINRFn } from '../../core/ui/privacy';
 
 @Component({
   selector: 'app-documents-page',
@@ -577,14 +578,6 @@ export class DocumentsPage implements OnInit, OnDestroy {
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   }
 
-  formatINR(value: string | null): string {
-    if (value == null) return '—';
-    const n = Number(value);
-    if (!Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(n);
-  }
+  /** Privacy-aware INR formatter — masks to bullets when privacy mode is on. */
+  protected readonly formatINR = formatINRFn;
 }

@@ -20,6 +20,7 @@ import {
 
 import { AuthService } from '../../core/auth/auth.service';
 import { DocumentRow, listDocuments } from '../../core/documents/documents.api';
+import { compactINR, formatINR as formatINRFn, privacyMode } from '../../core/ui/privacy';
 
 interface DonutOptions {
   series: ApexNonAxisChartSeries;
@@ -377,6 +378,7 @@ export class InvestmentsPage implements OnInit {
   // ── Charts ───────────────────────────────────────────────────────────────
 
   readonly cgBreakdownChart = computed<BarOptions | null>(() => {
+    privacyMode();
     const a = this.agg();
     const total = Math.abs(a.stcg111a) + Math.abs(a.stcgNonEquity) + Math.abs(a.ltcg112a) + Math.abs(a.ltcgNonEquity);
     if (total === 0) return null;
@@ -405,13 +407,14 @@ export class InvestmentsPage implements OnInit {
       plotOptions: { bar: { borderRadius: 8, columnWidth: '50%' } },
       dataLabels: { enabled: false },
       fill: { type: 'solid', opacity: 1 },
-      tooltip: { y: { formatter: (v: number) => formatINRStatic(v) } },
+      tooltip: { y: { formatter: (v: number) => formatINRFn(v) } },
       legend: { position: 'bottom', fontSize: '12px', labels: { colors: '#454652' } },
       stroke: { show: false } as ApexStroke,
     };
   });
 
   readonly sourceChart = computed<DonutOptions | null>(() => {
+    privacyMode();
     // Aggregate absolute |STCG + LTCG| per broker / source.
     const map = new Map<string, number>();
     for (const d of this.sourceDocs()) {
@@ -441,7 +444,7 @@ export class InvestmentsPage implements OnInit {
       },
       dataLabels: { enabled: true, formatter: (v: number) => `${v.toFixed(0)}%`, style: { fontSize: '11px', fontWeight: 700 } },
       stroke: { width: 3, colors: ['#fff'] },
-      tooltip: { y: { formatter: (v: number) => formatINRStatic(v) } },
+      tooltip: { y: { formatter: (v: number) => formatINRFn(v) } },
       responsive: [{ breakpoint: 480, options: { chart: { height: 260 }, legend: { fontSize: '11px' } } }],
     };
   });
@@ -465,9 +468,8 @@ export class InvestmentsPage implements OnInit {
     }
   }
 
-  formatINR(value: number | string | null | undefined): string {
-    return formatINRStatic(value);
-  }
+  /** Exposed as a field so the template can call it directly. */
+  protected readonly formatINR = formatINRFn;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -485,26 +487,6 @@ function ayToFy(ay: string | null): string {
   const fyStart = Number(m[1]) - 1;
   const fyEndShort = String(Number(m[2]) - 1).padStart(2, '0');
   return `${fyStart}-${fyEndShort}`;
-}
-
-const INR = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-
-function formatINRStatic(value: number | string | null | undefined): string {
-  if (value == null || value === '') return '—';
-  const n = Number(value);
-  if (!Number.isFinite(n)) return '—';
-  if (n === 0) return '₹0';
-  return INR.format(n);
-}
-
-function compactINR(value: number | null | undefined): string {
-  if (value == null) return '—';
-  const n = Math.abs(Number(value));
-  if (!Number.isFinite(n)) return '—';
-  if (n >= 1e7) return `₹${(value / 1e7).toFixed(1)}Cr`;
-  if (n >= 1e5) return `₹${(value / 1e5).toFixed(1)}L`;
-  if (n >= 1e3) return `₹${(value / 1e3).toFixed(1)}K`;
-  return `₹${value}`;
 }
 
 const CHART_PALETTE = [

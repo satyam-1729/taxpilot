@@ -20,6 +20,7 @@ import {
 
 import { AuthService } from '../../core/auth/auth.service';
 import { DocumentRow, listDocuments } from '../../core/documents/documents.api';
+import { compactINR, formatINR as formatINRFn, privacyMode } from '../../core/ui/privacy';
 
 interface DonutOptions {
   series: ApexNonAxisChartSeries;
@@ -285,6 +286,7 @@ export class DashboardPage implements OnInit {
   // ── Charts ───────────────────────────────────────────────────────────────
 
   readonly salaryChart = computed<DonutOptions | null>(() => {
+    privacyMode();  // dependency: re-render chart when privacy toggles
     const components = this.aggregateLineItems('salary.components');
     if (components.size === 0) return null;
     const labels = Array.from(components.keys());
@@ -303,12 +305,13 @@ export class DashboardPage implements OnInit {
       },
       dataLabels: { enabled: true, formatter: (v: number) => `${v.toFixed(0)}%`, style: { fontSize: '11px', fontWeight: 700 } },
       stroke: { width: 3, colors: ['#fff'] },
-      tooltip: { y: { formatter: (v: number) => formatINRStatic(v) } },
+      tooltip: { y: { formatter: (v: number) => formatINRFn(v) } },
       responsive: [{ breakpoint: 480, options: { chart: { height: 260 }, legend: { fontSize: '11px' } } }],
     };
   });
 
   readonly tdsChart = computed<BarOptions | null>(() => {
+    privacyMode();
     const quarters = this.aggregateQuarters();
     if (quarters.every(q => q === 0)) return null;
     return {
@@ -330,13 +333,14 @@ export class DashboardPage implements OnInit {
       plotOptions: { bar: { borderRadius: 10, columnWidth: '50%' } },
       dataLabels: { enabled: false },
       fill: { type: 'solid', opacity: 1 },
-      tooltip: { y: { formatter: (v: number) => formatINRStatic(v) } },
+      tooltip: { y: { formatter: (v: number) => formatINRFn(v) } },
       legend: { show: false },
       stroke: { show: false } as ApexStroke,
     };
   });
 
   readonly deductionsChart = computed<BarOptions | null>(() => {
+    privacyMode();
     const items = this.aggregateLineItems('chapter_vi_a');
     if (items.size === 0) return null;
     const labels = Array.from(items.keys());
@@ -363,12 +367,12 @@ export class DashboardPage implements OnInit {
       plotOptions: { bar: { borderRadius: 8, horizontal: true, barHeight: '64%', distributed: true } },
       dataLabels: {
         enabled: true,
-        formatter: (v: number) => formatINRStatic(v),
+        formatter: (v: number) => formatINRFn(v),
         style: { fontSize: '11px', fontWeight: 700, colors: ['#fff'] },
         offsetX: 0,
       },
       fill: { type: 'solid', opacity: 1 },
-      tooltip: { y: { formatter: (v: number) => formatINRStatic(v) } },
+      tooltip: { y: { formatter: (v: number) => formatINRFn(v) } },
       legend: { show: false },
       stroke: { show: false } as ApexStroke,
     } as BarOptions;
@@ -407,9 +411,8 @@ export class DashboardPage implements OnInit {
     return 'Good evening';
   }
 
-  formatINR(value: number | string | null | undefined): string {
-    return formatINRStatic(value);
-  }
+  /** Exposed as a field so the template can call it directly. */
+  protected readonly formatINR = formatINRFn;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -460,26 +463,6 @@ function ayToFy(ay: string | null): string {
   const fyStart = Number(m[1]) - 1;
   const fyEndShort = String(Number(m[2]) - 1).padStart(2, '0');
   return `${fyStart}-${fyEndShort}`;
-}
-
-const INR = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-
-function formatINRStatic(value: number | string | null | undefined): string {
-  if (value == null || value === '') return '—';
-  const n = Number(value);
-  if (!Number.isFinite(n) || n === 0) return n === 0 ? '₹0' : '—';
-  return INR.format(n);
-}
-
-/** Compact INR for axis labels: ₹1.5L, ₹12.3K, etc. */
-function compactINR(value: number | null | undefined): string {
-  if (value == null) return '—';
-  const n = Math.abs(Number(value));
-  if (!Number.isFinite(n)) return '—';
-  if (n >= 1e7) return `₹${(value / 1e7).toFixed(1)}Cr`;
-  if (n >= 1e5) return `₹${(value / 1e5).toFixed(1)}L`;
-  if (n >= 1e3) return `₹${(value / 1e3).toFixed(1)}K`;
-  return `₹${value}`;
 }
 
 /** High-contrast palette for donut + horizontal-bar (each segment a distinct hue). */
