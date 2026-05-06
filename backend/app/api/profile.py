@@ -2,15 +2,15 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import current_user
+from app.core.security import current_user, get_user_dek
 from app.db.session import get_db
 from app.models import BankAccount, User
 from app.schemas.profile import BankAccountCreate, BankAccountOut
-from app.utils.crypto import encrypt_field
+from app.utils.crypto import encrypt_field, encrypt_str
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -32,6 +32,7 @@ async def list_bank_accounts(
 @router.post("/bank-accounts", response_model=BankAccountOut, status_code=status.HTTP_201_CREATED)
 async def add_bank_account(
     body: BankAccountCreate,
+    request: Request,
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ) -> BankAccountOut:
@@ -50,9 +51,11 @@ async def add_bank_account(
             .values(is_primary=False)
         )
 
+    dek = get_user_dek(request, user)
     row = BankAccount(
         user_id=user.id,
         account_number_encrypted=encrypt_field(body.account_number),
+        account_number_ct=encrypt_str(dek, body.account_number) if dek else None,
         account_last4=body.account_number[-4:],
         ifsc=body.ifsc,
         bank_name=body.bank_name,

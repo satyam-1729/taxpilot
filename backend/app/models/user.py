@@ -24,6 +24,21 @@ class User(Base):
     verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    # ── Envelope encryption (added 0007) ─────────────────────────────────────
+    # dek_wrapped is the per-user DEK encrypted with the server KEK. The
+    # plaintext DEK lives only in process memory during a request. *_ct
+    # columns are AES-GCM ciphertext under the DEK; *_bidx are HMAC blind
+    # indexes on the KEK so we can still WHERE on encrypted fields.
+    dek_wrapped: Mapped[bytes | None] = mapped_column(LargeBinary)
+    email_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    email_bidx: Mapped[bytes | None] = mapped_column(LargeBinary, index=True)
+    phone_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    phone_bidx: Mapped[bytes | None] = mapped_column(LargeBinary, index=True)
+    name_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    dob_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    pan_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    aadhaar_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

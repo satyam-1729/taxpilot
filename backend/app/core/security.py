@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import get_settings
 from app.db.session import get_db
 from app.models import User
+from app.utils.crypto import unwrap_dek
 from sqlalchemy import select
 
 _ALGO = "HS256"
@@ -47,3 +48,20 @@ async def current_user(
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+def get_user_dek(request: Request, user: User) -> bytes | None:
+    """Unwrap and cache the user's DEK on the request scope.
+
+    Returns None if the user pre-dates envelope encryption (no dek_wrapped row).
+    Cached on request.state so multiple handlers in the same request only pay
+    the AES-GCM unwrap cost once. The plaintext DEK never leaves this process.
+    """
+    if user.dek_wrapped is None:
+        return None
+    cached = getattr(request.state, "_dek", None)
+    if cached is not None:
+        return cached
+    dek = unwrap_dek(user.dek_wrapped)
+    request.state._dek = dek
+    return dek

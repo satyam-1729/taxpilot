@@ -16,6 +16,10 @@ class BankAccount(Base):
         PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     account_number_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    # AES-GCM under the user's DEK — populated by the dual-write path. Once
+    # every row has account_number_ct set, account_number_encrypted (Fernet,
+    # KEK-only) is redundant and a follow-up migration drops it.
+    account_number_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     account_last4: Mapped[str] = mapped_column(CHAR(4), nullable=False)
     ifsc: Mapped[str] = mapped_column(String(11), nullable=False)
     bank_name: Mapped[str] = mapped_column(String(120), nullable=False)

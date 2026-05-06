@@ -39,6 +39,12 @@ from app.services.parser.classifier import DocType, classify
 from app.services.parser.form16 import ParserConfigError, ParserError, parse_form16
 from app.services.parser.pdf import decrypt_pdf, is_encrypted
 from app.services.parser.xlsx import is_xlsx, xlsx_to_text
+from app.utils.crypto import (
+    encrypt_decimal,
+    encrypt_json,
+    encrypt_str,
+    unwrap_dek,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -241,22 +247,28 @@ async def delete_document(
 # ─────────────────────────────────────────────────────────────────────────────
 
 async def _parse_in_background(doc_id: UUID) -> None:
-    """Pulls the row, parses, writes results back. Owns its own DB session."""
+    """Pulls the row, parses, writes results back. Owns its own DB session.
+
+    Background tasks have no Request scope, so we explicitly load the owning
+    user to get their wrapped DEK and unwrap it just for this parse.
+    """
 
     async with SessionLocal() as session:
         row = await session.get(Document, doc_id)
         if row is None:
             logger.error("parse_in_background: document %s missing", doc_id)
             return
+        owner = await session.get(User, row.user_id)
+        dek = unwrap_dek(owner.dek_wrapped) if (owner and owner.dek_wrapped) else None
         row.status = "parsing"
         await session.commit()
 
         try:
             content = Path(row.storage_path).read_bytes()
             if row.doc_type == "form16":
-                await _parse_form16(session, row, content)
+                await _parse_form16(session, row, content, dek)
             elif row.doc_type == "capital_gains":
-                await _parse_capital_gains(session, row, content)
+                await _parse_capital_gains(session, row, content, dek)
             else:
                 raise ParserError(f"No parser registered for doc_type={row.doc_type!r}")
         except (ParserConfigError, CapitalGainsParserError) as e:
@@ -276,9 +288,12 @@ async def _parse_in_background(doc_id: UUID) -> None:
             await session.commit()
 
 
-async def _parse_form16(session: AsyncSession, row: Document, pdf_bytes: bytes) -> None:
+async def _parse_form16(
+    session: AsyncSession, row: Document, pdf_bytes: bytes, dek: bytes | None
+) -> None:
     data, audit = await parse_form16(pdf_bytes)
-    row.parsed_json = data.model_dump(mode="json")
+    parsed = data.model_dump(mode="json")
+    row.parsed_json = parsed
     row.ay = data.ay
     row.fy = data.fy
     row.employer_name = data.employer.name
@@ -289,6 +304,19 @@ async def _parse_form16(session: AsyncSession, row: Document, pdf_bytes: bytes) 
     row.taxable_income = data.taxable_income
     row.tax_payable = data.tax_payable
     row.regime = data.regime
+
+    # Envelope-encrypted mirrors. Skipped for legacy users without a DEK —
+    # backfill script handles those in Stage 2.
+    if dek is not None:
+        row.parsed_json_ct = encrypt_json(dek, parsed)
+        row.employer_name_ct = encrypt_str(dek, data.employer.name)
+        row.employer_tan_ct = encrypt_str(dek, data.employer.tan)
+        row.employee_pan_ct = encrypt_str(dek, data.employee.pan)
+        row.gross_salary_ct = encrypt_decimal(dek, data.salary.gross)
+        row.total_tds_ct = encrypt_decimal(dek, data.tds.total_tds)
+        row.taxable_income_ct = encrypt_decimal(dek, data.taxable_income)
+        row.tax_payable_ct = encrypt_decimal(dek, data.tax_payable)
+
     row.parser_provider = audit.get("provider")
     row.parser_model = audit.get("model")
     row.status = "parsed"
@@ -303,7 +331,9 @@ async def _parse_form16(session: AsyncSession, row: Document, pdf_bytes: bytes) 
     )
 
 
-async def _parse_capital_gains(session: AsyncSession, row: Document, content: bytes) -> None:
+async def _parse_capital_gains(
+    session: AsyncSession, row: Document, content: bytes, dek: bytes | None
+) -> None:
     if is_xlsx(content):
         text = xlsx_to_text(content)
         data, audit = await parse_capital_gains_xlsx(text)
@@ -324,6 +354,19 @@ async def _parse_capital_gains(session: AsyncSession, row: Document, content: by
     investor = data.get("investor") or {}
     if investor.get("pan"):
         row.employee_pan = investor["pan"]
+
+    if dek is not None:
+        row.parsed_json_ct = encrypt_json(dek, data)
+        row.stcg_111a_ct = encrypt_decimal(dek, denorm.get("stcg_111a"))
+        row.stcg_non_equity_ct = encrypt_decimal(dek, denorm.get("stcg_non_equity"))
+        row.ltcg_112a_ct = encrypt_decimal(dek, denorm.get("ltcg_112a"))
+        row.ltcg_non_equity_ct = encrypt_decimal(dek, denorm.get("ltcg_non_equity"))
+        row.dividends_total_ct = encrypt_decimal(dek, denorm.get("dividends_total"))
+        row.exempt_income_total_ct = encrypt_decimal(dek, denorm.get("exempt_income_total"))
+        row.total_invested_ct = encrypt_decimal(dek, denorm.get("total_invested"))
+        if investor.get("pan"):
+            row.employee_pan_ct = encrypt_str(dek, investor["pan"])
+
     row.parser_provider = audit.get("provider")
     row.parser_model = audit.get("model")
     row.status = "parsed"

@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import CHAR, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, func
+from sqlalchemy import CHAR, DateTime, ForeignKey, Integer, LargeBinary, Numeric, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -48,6 +48,25 @@ class Document(Base):
 
     parsed_json: Mapped[dict | None] = mapped_column(JSONB)
     confidence: Mapped[dict | None] = mapped_column(JSONB)
+
+    # ── Envelope-encrypted mirrors (added 0007) ──────────────────────────────
+    # Populated by the dual-write path during the rollout. Once backfilled,
+    # the plaintext columns above will be dropped.
+    parsed_json_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    employer_name_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    employer_tan_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    employee_pan_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    gross_salary_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    total_tds_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    taxable_income_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    tax_payable_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    stcg_111a_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    stcg_non_equity_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    ltcg_112a_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    ltcg_non_equity_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    dividends_total_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    exempt_income_total_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+    total_invested_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     parser_provider: Mapped[str | None] = mapped_column(String(32))
     parser_model: Mapped[str | None] = mapped_column(String(64))
     parser_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
