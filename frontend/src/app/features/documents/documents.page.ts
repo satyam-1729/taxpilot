@@ -141,6 +141,16 @@ import { formatINR as formatINRFn } from '../../core/ui/privacy';
                           [ngClass]="docTypePill(row.doc_type)">
                       {{ docTypeLabel(row.doc_type) }}
                     </span>
+                    @if (regimeTag(row.doc_type); as tag) {
+                      <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                            [ngClass]="regimePill(tag)"
+                            [title]="regimeTooltip(tag)">
+                        <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">
+                          {{ tag === 'both' ? 'compare_arrows' : 'flag' }}
+                        </span>
+                        {{ regimeLabel(tag) }}
+                      </span>
+                    }
                     <span>{{ formatBytes(row.file_size_bytes) }}</span>
                     <span>•</span>
                     <span>{{ row.created_at | date:'MMM d, h:mm a' }}</span>
@@ -570,6 +580,40 @@ export class DocumentsPage implements OnInit, OnDestroy {
       capital_gains: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
       unknown: 'bg-surface-container-high text-on-surface-variant',
     }[t];
+  }
+
+  /**
+   * Which tax regime(s) does a document feed into?
+   * Form 16 and capital-gains are regime-agnostic (slabs apply to salary, flat
+   * rates apply to gains). Future doc types (rent receipts, 80C proofs, NPS
+   * Tier-I, home-loan interest) are Old-only — extend this map as parsers ship.
+   */
+  regimeTag(t: DocType): 'old' | 'new' | 'both' | null {
+    return ({
+      form16: 'both',
+      capital_gains: 'both',
+      unknown: null,
+    } as const)[t];
+  }
+
+  regimeLabel(tag: 'old' | 'new' | 'both'): string {
+    return { old: 'Old regime', new: 'New regime', both: 'Old + New' }[tag];
+  }
+
+  regimePill(tag: 'old' | 'new' | 'both'): string {
+    return {
+      old: 'bg-primary text-white',
+      new: 'bg-secondary-container text-on-secondary-container',
+      both: 'bg-surface-container-high text-on-surface-variant ring-1 ring-outline-variant/40',
+    }[tag];
+  }
+
+  regimeTooltip(tag: 'old' | 'new' | 'both'): string {
+    return {
+      old: 'Only relevant if you file under the Old Regime.',
+      new: 'Only relevant if you file under the New Regime.',
+      both: 'Required regardless of which regime you pick.',
+    }[tag];
   }
 
   formatBytes(bytes: number): string {

@@ -21,7 +21,7 @@ import { privacyMode, togglePrivacy } from '../ui/privacy';
           <nav class="nav">
             <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
             <a routerLink="/documents" routerLinkActive="active">Documents</a>
-            <a routerLink="/savings" routerLinkActive="active">Savings</a>
+            <a routerLink="/savings" routerLinkActive="active">Tax Saver</a>
             <a routerLink="/investments" routerLinkActive="active">Investments</a>
             <a routerLink="/chat" routerLinkActive="active">AI Chat</a>
             <a routerLink="/profile" routerLinkActive="active">Profile</a>
