@@ -1,8 +1,7 @@
 from datetime import datetime
-from decimal import Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import CHAR, DateTime, ForeignKey, Integer, LargeBinary, Numeric, String, Text, UniqueConstraint, func
+from sqlalchemy import CHAR, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -10,6 +9,15 @@ from app.db.session import Base
 
 
 class Document(Base):
+    """A parsed tax document.
+
+    All PII / financial fields (parsed_json, employer details, salary numbers,
+    capital-gains numbers) live exclusively in the *_ct columns as AES-GCM
+    ciphertext under the owning user's DEK. Filter / lookup columns
+    (doc_type, status, ay, fy, regime, broker, sha256) stay plaintext because
+    they are not PII and the dashboard pivots on them.
+    """
+
     __tablename__ = "documents"
     __table_args__ = (UniqueConstraint("user_id", "sha256", name="uq_documents_user_sha256"),)
 
@@ -25,33 +33,19 @@ class Document(Base):
     sha256: Mapped[str] = mapped_column(CHAR(64), nullable=False)
     storage_path: Mapped[str] = mapped_column(String(1024), nullable=False)
 
+    # Filter/lookup metadata — non-PII, plaintext.
     ay: Mapped[str | None] = mapped_column(String(16))
     fy: Mapped[str | None] = mapped_column(String(16))
-    employer_name: Mapped[str | None] = mapped_column(String(256))
-    employer_tan: Mapped[str | None] = mapped_column(String(32))
-    employee_pan: Mapped[str | None] = mapped_column(String(16))
-    gross_salary: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    total_tds: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    taxable_income: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    tax_payable: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
     regime: Mapped[str | None] = mapped_column(String(8))
-
-    # Capital gains denormalized fields (doc_type='capital_gains')
     broker: Mapped[str | None] = mapped_column(String(64))
-    stcg_111a: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    stcg_non_equity: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    ltcg_112a: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    ltcg_non_equity: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    dividends_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    exempt_income_total: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
-    total_invested: Mapped[Decimal | None] = mapped_column(Numeric(15, 2))
 
-    parsed_json: Mapped[dict | None] = mapped_column(JSONB)
+    # Confidence scores from the parser. Empty most of the time, never PII.
     confidence: Mapped[dict | None] = mapped_column(JSONB)
 
-    # ── Envelope-encrypted mirrors (added 0007) ──────────────────────────────
-    # Populated by the dual-write path during the rollout. Once backfilled,
-    # the plaintext columns above will be dropped.
+    # ── Envelope-encrypted PII / financials ─────────────────────────────────
+    # AES-256-GCM ciphertext under the user's DEK. Decryption happens at the
+    # API boundary in document_out_from(). Background workers unwrap the DEK
+    # from the owning user row.
     parsed_json_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     employer_name_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     employer_tan_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
@@ -67,6 +61,7 @@ class Document(Base):
     dividends_total_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     exempt_income_total_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
     total_invested_ct: Mapped[bytes | None] = mapped_column(LargeBinary)
+
     parser_provider: Mapped[str | None] = mapped_column(String(32))
     parser_model: Mapped[str | None] = mapped_column(String(64))
     parser_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")

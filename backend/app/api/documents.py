@@ -19,16 +19,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.core.security import current_user
+from app.core.security import current_user, get_user_dek
 from app.db.session import SessionLocal, get_db
 from app.models import Document, User
-from app.schemas.document import DocumentOut, UploadResponse
+from app.schemas.document import DocumentOut, UploadResponse, document_out_from
 from app.services.parser.capital_gains import (
     CapitalGainsParserError,
     denorm_capital_gains,
@@ -193,6 +193,7 @@ async def submit_password(
 
 @router.get("", response_model=list[DocumentOut])
 async def list_documents(
+    request: Request,
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[DocumentOut]:
@@ -200,12 +201,14 @@ async def list_documents(
         select(Document).where(Document.user_id == user.id).order_by(Document.created_at.desc())
     )
     rows = result.scalars().all()
-    return [DocumentOut.model_validate(r) for r in rows]
+    dek = get_user_dek(request, user)
+    return [document_out_from(r, dek) for r in rows]
 
 
 @router.get("/{doc_id}", response_model=DocumentOut)
 async def get_document(
     doc_id: UUID,
+    request: Request,
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DocumentOut:
@@ -215,7 +218,7 @@ async def get_document(
     row = result.scalar_one_or_none()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
-    return DocumentOut.model_validate(row)
+    return document_out_from(row, get_user_dek(request, user))
 
 
 @router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -259,7 +262,13 @@ async def _parse_in_background(doc_id: UUID) -> None:
             logger.error("parse_in_background: document %s missing", doc_id)
             return
         owner = await session.get(User, row.user_id)
-        dek = unwrap_dek(owner.dek_wrapped) if (owner and owner.dek_wrapped) else None
+        if owner is None or owner.dek_wrapped is None:
+            logger.error("parse_in_background: doc %s owner has no DEK; aborting", doc_id)
+            row.status = "failed"
+            row.error = "Account is missing its encryption key. Please log in and retry."
+            await session.commit()
+            return
+        dek = unwrap_dek(owner.dek_wrapped)
         row.status = "parsing"
         await session.commit()
 
@@ -289,33 +298,25 @@ async def _parse_in_background(doc_id: UUID) -> None:
 
 
 async def _parse_form16(
-    session: AsyncSession, row: Document, pdf_bytes: bytes, dek: bytes | None
+    session: AsyncSession, row: Document, pdf_bytes: bytes, dek: bytes
 ) -> None:
     data, audit = await parse_form16(pdf_bytes)
     parsed = data.model_dump(mode="json")
-    row.parsed_json = parsed
+
+    # Plaintext metadata used for filtering / lookup — not PII.
     row.ay = data.ay
     row.fy = data.fy
-    row.employer_name = data.employer.name
-    row.employer_tan = data.employer.tan
-    row.employee_pan = data.employee.pan
-    row.gross_salary = data.salary.gross
-    row.total_tds = data.tds.total_tds
-    row.taxable_income = data.taxable_income
-    row.tax_payable = data.tax_payable
     row.regime = data.regime
 
-    # Envelope-encrypted mirrors. Skipped for legacy users without a DEK —
-    # backfill script handles those in Stage 2.
-    if dek is not None:
-        row.parsed_json_ct = encrypt_json(dek, parsed)
-        row.employer_name_ct = encrypt_str(dek, data.employer.name)
-        row.employer_tan_ct = encrypt_str(dek, data.employer.tan)
-        row.employee_pan_ct = encrypt_str(dek, data.employee.pan)
-        row.gross_salary_ct = encrypt_decimal(dek, data.salary.gross)
-        row.total_tds_ct = encrypt_decimal(dek, data.tds.total_tds)
-        row.taxable_income_ct = encrypt_decimal(dek, data.taxable_income)
-        row.tax_payable_ct = encrypt_decimal(dek, data.tax_payable)
+    # Encrypted PII / financials.
+    row.parsed_json_ct = encrypt_json(dek, parsed)
+    row.employer_name_ct = encrypt_str(dek, data.employer.name)
+    row.employer_tan_ct = encrypt_str(dek, data.employer.tan)
+    row.employee_pan_ct = encrypt_str(dek, data.employee.pan)
+    row.gross_salary_ct = encrypt_decimal(dek, data.salary.gross)
+    row.total_tds_ct = encrypt_decimal(dek, data.tds.total_tds)
+    row.taxable_income_ct = encrypt_decimal(dek, data.taxable_income)
+    row.tax_payable_ct = encrypt_decimal(dek, data.tax_payable)
 
     row.parser_provider = audit.get("provider")
     row.parser_model = audit.get("model")
@@ -332,40 +333,32 @@ async def _parse_form16(
 
 
 async def _parse_capital_gains(
-    session: AsyncSession, row: Document, content: bytes, dek: bytes | None
+    session: AsyncSession, row: Document, content: bytes, dek: bytes
 ) -> None:
     if is_xlsx(content):
         text = xlsx_to_text(content)
         data, audit = await parse_capital_gains_xlsx(text)
     else:
         data, audit = await parse_capital_gains_pdf(content)
-    row.parsed_json = data
     denorm = denorm_capital_gains(data)
+
+    # Plaintext metadata.
     row.broker = denorm.get("broker")
     row.ay = denorm.get("ay")
     row.fy = denorm.get("fy")
-    row.stcg_111a = denorm.get("stcg_111a")
-    row.stcg_non_equity = denorm.get("stcg_non_equity")
-    row.ltcg_112a = denorm.get("ltcg_112a")
-    row.ltcg_non_equity = denorm.get("ltcg_non_equity")
-    row.dividends_total = denorm.get("dividends_total")
-    row.exempt_income_total = denorm.get("exempt_income_total")
-    row.total_invested = denorm.get("total_invested")
+
+    # Encrypted financials + investor PAN.
+    row.parsed_json_ct = encrypt_json(dek, data)
+    row.stcg_111a_ct = encrypt_decimal(dek, denorm.get("stcg_111a"))
+    row.stcg_non_equity_ct = encrypt_decimal(dek, denorm.get("stcg_non_equity"))
+    row.ltcg_112a_ct = encrypt_decimal(dek, denorm.get("ltcg_112a"))
+    row.ltcg_non_equity_ct = encrypt_decimal(dek, denorm.get("ltcg_non_equity"))
+    row.dividends_total_ct = encrypt_decimal(dek, denorm.get("dividends_total"))
+    row.exempt_income_total_ct = encrypt_decimal(dek, denorm.get("exempt_income_total"))
+    row.total_invested_ct = encrypt_decimal(dek, denorm.get("total_invested"))
     investor = data.get("investor") or {}
     if investor.get("pan"):
-        row.employee_pan = investor["pan"]
-
-    if dek is not None:
-        row.parsed_json_ct = encrypt_json(dek, data)
-        row.stcg_111a_ct = encrypt_decimal(dek, denorm.get("stcg_111a"))
-        row.stcg_non_equity_ct = encrypt_decimal(dek, denorm.get("stcg_non_equity"))
-        row.ltcg_112a_ct = encrypt_decimal(dek, denorm.get("ltcg_112a"))
-        row.ltcg_non_equity_ct = encrypt_decimal(dek, denorm.get("ltcg_non_equity"))
-        row.dividends_total_ct = encrypt_decimal(dek, denorm.get("dividends_total"))
-        row.exempt_income_total_ct = encrypt_decimal(dek, denorm.get("exempt_income_total"))
-        row.total_invested_ct = encrypt_decimal(dek, denorm.get("total_invested"))
-        if investor.get("pan"):
-            row.employee_pan_ct = encrypt_str(dek, investor["pan"])
+        row.employee_pan_ct = encrypt_str(dek, investor["pan"])
 
     row.parser_provider = audit.get("provider")
     row.parser_model = audit.get("model")

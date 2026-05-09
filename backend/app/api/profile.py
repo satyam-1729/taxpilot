@@ -10,7 +10,7 @@ from app.core.security import current_user, get_user_dek
 from app.db.session import get_db
 from app.models import BankAccount, User
 from app.schemas.profile import BankAccountCreate, BankAccountOut
-from app.utils.crypto import encrypt_field, encrypt_str
+from app.utils.crypto import encrypt_str
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -52,10 +52,11 @@ async def add_bank_account(
         )
 
     dek = get_user_dek(request, user)
+    if dek is None:
+        raise HTTPException(status_code=500, detail="User has no DEK; cannot store account number.")
     row = BankAccount(
         user_id=user.id,
-        account_number_encrypted=encrypt_field(body.account_number),
-        account_number_ct=encrypt_str(dek, body.account_number) if dek else None,
+        account_number_ct=encrypt_str(dek, body.account_number),
         account_last4=body.account_number[-4:],
         ifsc=body.ifsc,
         bank_name=body.bank_name,

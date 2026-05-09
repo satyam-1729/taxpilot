@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+from app.utils.crypto import read_decimal, read_json, read_str
+
+if TYPE_CHECKING:
+    from app.models import Document
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -102,6 +109,41 @@ class DocumentOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+def document_out_from(row: "Document", dek: bytes | None) -> "DocumentOut":
+    """Build a DocumentOut, decrypting PII / financial fields with the user's DEK."""
+    return DocumentOut(
+        id=row.id,
+        doc_type=row.doc_type,
+        status=row.status,
+        file_name=row.file_name,
+        file_size_bytes=row.file_size_bytes,
+        ay=row.ay,
+        fy=row.fy,
+        # Form 16 PII / financials
+        employer_name=read_str(row.employer_name_ct, dek),
+        employee_pan=read_str(row.employee_pan_ct, dek),
+        gross_salary=read_decimal(row.gross_salary_ct, dek),
+        total_tds=read_decimal(row.total_tds_ct, dek),
+        taxable_income=read_decimal(row.taxable_income_ct, dek),
+        tax_payable=read_decimal(row.tax_payable_ct, dek),
+        regime=row.regime,
+        # Capital gains
+        broker=row.broker,
+        stcg_111a=read_decimal(row.stcg_111a_ct, dek),
+        stcg_non_equity=read_decimal(row.stcg_non_equity_ct, dek),
+        ltcg_112a=read_decimal(row.ltcg_112a_ct, dek),
+        ltcg_non_equity=read_decimal(row.ltcg_non_equity_ct, dek),
+        dividends_total=read_decimal(row.dividends_total_ct, dek),
+        exempt_income_total=read_decimal(row.exempt_income_total_ct, dek),
+        total_invested=read_decimal(row.total_invested_ct, dek),
+        # Common
+        parsed_json=read_json(row.parsed_json_ct, dek),
+        error=row.error,
+        created_at=row.created_at,
+        parsed_at=row.parsed_at,
+    )
 
 
 class UploadResponse(BaseModel):

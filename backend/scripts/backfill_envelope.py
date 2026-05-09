@@ -1,4 +1,12 @@
-"""Stage 2 backfill: populate the new ciphertext columns from existing plaintext.
+"""[OBSOLETE — applied 2026-05-08, retained for historical reference]
+
+After migration 0008 dropped the plaintext / legacy-Fernet columns, this script
+no longer runs (the columns it reads from are gone). It is kept in the tree so
+operators can see how the original backfill happened. Do NOT attempt to re-run.
+
+────────────────────────────────────────────────────────────────────────────────
+
+Stage 2 backfill: populate the new ciphertext columns from existing plaintext.
 
 Background
 ──────────

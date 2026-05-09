@@ -1,8 +1,16 @@
+from __future__ import annotations
+
 import re
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
+
+from app.utils.crypto import read_date, read_str
+
+if TYPE_CHECKING:
+    from app.models import User
 
 PAN_REGEX = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$")
 AADHAAR_REGEX = re.compile(r"^\d{12}$")
@@ -30,6 +38,21 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+def user_out_from(user: "User", dek: bytes | None) -> UserOut:
+    """Build a UserOut from an ORM row, decrypting PII via the supplied DEK."""
+    return UserOut(
+        id=user.id,
+        email=read_str(user.email_ct, dek),
+        phone=read_str(user.phone_ct, dek),
+        name=read_str(user.name_ct, dek),
+        dob=read_date(user.dob_ct, dek),
+        pan_last4=user.pan_last4,
+        aadhaar_last4=user.aadhaar_last4,
+        verified=user.verified,
+        verified_at=user.verified_at,
+    )
 
 
 class KycRequest(BaseModel):

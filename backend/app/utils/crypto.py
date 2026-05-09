@@ -1,33 +1,22 @@
-"""Field-level encryption: legacy Fernet helpers + envelope encryption (KEK→DEK).
+"""Envelope encryption (KEK→DEK) for PII at rest.
 
-Two coexisting layers:
+Two keys:
+  KEK — master key in the server env (Settings.field_encryption_key).
+        Single value app-wide. Versioned by 1-byte prefix for future rotation.
+  DEK — random 32-byte key per user, stored *wrapped* on the user row.
 
-  Legacy (kept for backwards compat with already-stored rows)
-  ────────────────────────────────────────────────────────────
-  encrypt_field / decrypt_field — Fernet AES-128-CBC + HMAC, KEK-only.
-  Used today by users.pan_encrypted and bank_accounts.account_number_encrypted.
-  Do NOT use these for new fields — they are kept so existing rows still decrypt
-  during the dual-write rollout.
+Format on every ciphertext blob:
+  [ 1 byte version ][ 12 byte nonce ][ ciphertext + 16 byte GCM tag ]
 
-  Envelope encryption (new, used for everything going forward)
-  ────────────────────────────────────────────────────────────
-  Two keys:
-    KEK — master key in the server env (Settings.field_encryption_key).
-    DEK — random 32-byte key per user, stored *wrapped* on the user row.
+The version byte lets us rotate either key without a big-bang migration:
+readers pick the right key by prefix, writers always use the current version.
 
-  Format on every ciphertext blob:
-    [ 1 byte version ][ 12 byte nonce ][ ciphertext + 16 byte GCM tag ]
-
-  The version byte lets us roll the KEK or the DEK in the future without a
-  big-bang migration: readers pick the right key by prefix, writers always use
-  the current version.
-
-  Threat-model recap:
-    - DB dump only          → ciphertext + wrapped DEKs, no KEK → unreadable.
-    - App env only          → KEK but no ciphertext → unreadable.
-    - DB + app env (full)   → readable. (Defense-in-depth limit.)
-    - Stolen JWT (live)     → can read the user's own data via the API. The
-                              auth check is the gate; the DEK is the lock.
+Threat-model recap:
+  - DB dump only          → ciphertext + wrapped DEKs, no KEK → unreadable.
+  - App env only          → KEK but no ciphertext → unreadable.
+  - DB + app env (full)   → readable. (Defense-in-depth limit.)
+  - Stolen JWT (live)     → can read the user's own data via the API. The
+                            auth check is the gate; the DEK is the lock.
 """
 
 from __future__ import annotations
@@ -40,7 +29,6 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from app.core.config import get_settings
@@ -62,30 +50,6 @@ def _kek_bytes(version: int = CURRENT_KEK_VERSION) -> bytes:
         raise ValueError(f"Unsupported KEK version: {version}")
     raw = get_settings().field_encryption_key.encode("utf-8")
     return hashlib.sha256(raw).digest()
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Legacy Fernet (kept for backwards compat — DO NOT use for new fields)
-# ─────────────────────────────────────────────────────────────────────────────
-
-
-def _fernet() -> Fernet:
-    import base64
-
-    return Fernet(base64.urlsafe_b64encode(_kek_bytes()))
-
-
-def encrypt_field(value: str) -> bytes:
-    """Legacy: encrypt with KEK directly via Fernet. Pre-envelope-encryption."""
-    return _fernet().encrypt(value.encode("utf-8"))
-
-
-def decrypt_field(value: bytes) -> str:
-    """Legacy: decrypt a Fernet ciphertext. Used by old PAN / bank-acct rows."""
-    try:
-        return _fernet().decrypt(value).decode("utf-8")
-    except InvalidToken as e:
-        raise ValueError("Could not decrypt field") from e
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -195,6 +159,38 @@ def decrypt_json(dek: bytes, blob: bytes | None) -> Any:
 # ─────────────────────────────────────────────────────────────────────────────
 # Blind indexes — deterministic HMAC for equality lookups on encrypted fields
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Read-with-fallback — used during Stage 3 cut-over.
+# Prefer the ciphertext, fall back to plaintext if the row pre-dates backfill.
+# After Stage 4 drops plaintext columns, the fallback is unreachable and these
+# can shrink to plain `decrypt_*` calls.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def read_str(ct: bytes | None, dek: bytes | None, *, fallback: str | None = None) -> str | None:
+    if ct is not None and dek is not None:
+        return decrypt_str(dek, ct)
+    return fallback
+
+
+def read_decimal(ct: bytes | None, dek: bytes | None, *, fallback: Decimal | None = None) -> Decimal | None:
+    if ct is not None and dek is not None:
+        return decrypt_decimal(dek, ct)
+    return fallback
+
+
+def read_date(ct: bytes | None, dek: bytes | None, *, fallback: date | None = None) -> date | None:
+    if ct is not None and dek is not None:
+        return decrypt_date(dek, ct)
+    return fallback
+
+
+def read_json(ct: bytes | None, dek: bytes | None, *, fallback: Any = None) -> Any:
+    if ct is not None and dek is not None:
+        return decrypt_json(dek, ct)
+    return fallback
 
 
 def blind_index(value: str | None) -> bytes | None:
