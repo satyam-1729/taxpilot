@@ -29,6 +29,12 @@ from app.core.security import current_user, get_user_dek
 from app.db.session import SessionLocal, get_db
 from app.models import Document, User
 from app.schemas.document import DocumentOut, UploadResponse, document_out_from
+from app.services.parser.ais import (
+    AisParserConfigError,
+    AisParserError,
+    denorm_ais,
+    parse_ais,
+)
 from app.services.parser.capital_gains import (
     CapitalGainsParserError,
     denorm_capital_gains,
@@ -49,10 +55,11 @@ from app.utils.crypto import (
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-KNOWN_DOC_TYPES: set[DocType] = {"form16", "capital_gains"}
+KNOWN_DOC_TYPES: set[DocType] = {"form16", "capital_gains", "ais"}
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
 UNKNOWN_DOC_DETAIL = (
-    "We couldn't recognise this document. Supported: Form 16 (TDS certificate, PDF) "
+    "We couldn't recognise this document. Supported: Form 16 (TDS certificate, PDF), "
+    "AIS / TIS / Form 26AS (PDF from incometax.gov.in), "
     "or a capital gains / broker P&L statement (Zerodha, Groww, Upstox, etc. — XLSX) "
     "or a CAMS / KFinTech CAS (PDF). For PDFs, make sure they're text-based not scanned images."
 )
@@ -278,14 +285,16 @@ async def _parse_in_background(doc_id: UUID) -> None:
                 await _parse_form16(session, row, content, dek)
             elif row.doc_type == "capital_gains":
                 await _parse_capital_gains(session, row, content, dek)
+            elif row.doc_type == "ais":
+                await _parse_ais(session, row, content, dek)
             else:
                 raise ParserError(f"No parser registered for doc_type={row.doc_type!r}")
-        except (ParserConfigError, CapitalGainsParserError) as e:
+        except (ParserConfigError, CapitalGainsParserError, AisParserConfigError) as e:
             logger.warning("Parser not configured / unavailable: %s", e)
             row.status = "failed"
             row.error = str(e)
             await session.commit()
-        except ParserError as e:
+        except (ParserError, AisParserError) as e:
             logger.exception("Parse failed for %s", doc_id)
             row.status = "failed"
             row.error = str(e)
@@ -370,6 +379,58 @@ async def _parse_capital_gains(
         "parsed capital_gains %s broker=%s in=%s out=%s tokens",
         row.id,
         denorm.get("broker"),
+        audit.get("input_tokens"),
+        audit.get("output_tokens"),
+    )
+
+
+async def _parse_ais(
+    session: AsyncSession, row: Document, pdf_bytes: bytes, dek: bytes
+) -> None:
+    """Parse an AIS / TIS / Form 26AS PDF and persist results.
+
+    AIS aggregates land in the same encrypted columns we already have for
+    Form 16 and capital gains (`total_tds_ct`, `dividends_total_ct`,
+    `stcg_*_ct`, `ltcg_*_ct`, `exempt_income_total_ct`). The full structured
+    breakdown — TDS-by-deductor, interest-by-bank, etc. — lives in
+    `parsed_json_ct` for the reconciler to consume.
+    """
+
+    data, audit = await parse_ais(pdf_bytes)
+    parsed = data.model_dump(mode="json")
+    denorm = denorm_ais(data)
+
+    # Plaintext metadata for filtering / lookup.
+    row.ay = denorm.get("ay")
+    row.fy = denorm.get("fy")
+
+    # Encrypted PII / financials. AIS-reported salary becomes our
+    # `gross_salary_ct` cross-check value; AIS total income (TIS only)
+    # populates `taxable_income_ct` so the reconciler has a direct compare
+    # against Form 16's reported taxable income.
+    row.parsed_json_ct = encrypt_json(dek, parsed)
+    if data.taxpayer.pan:
+        row.employee_pan_ct = encrypt_str(dek, data.taxpayer.pan)
+    row.gross_salary_ct = encrypt_decimal(dek, denorm.get("salary_total"))
+    row.total_tds_ct = encrypt_decimal(dek, denorm.get("total_tds"))
+    row.taxable_income_ct = encrypt_decimal(dek, denorm.get("total_income"))
+    row.stcg_111a_ct = encrypt_decimal(dek, denorm.get("stcg_111a"))
+    row.stcg_non_equity_ct = encrypt_decimal(dek, denorm.get("stcg_non_equity"))
+    row.ltcg_112a_ct = encrypt_decimal(dek, denorm.get("ltcg_112a"))
+    row.ltcg_non_equity_ct = encrypt_decimal(dek, denorm.get("ltcg_non_equity"))
+    row.dividends_total_ct = encrypt_decimal(dek, denorm.get("dividends_total"))
+    row.exempt_income_total_ct = encrypt_decimal(dek, denorm.get("exempt_income_total"))
+
+    row.parser_provider = audit.get("provider")
+    row.parser_model = audit.get("model")
+    row.status = "parsed"
+    row.parsed_at = datetime.now(tz=timezone.utc)
+    row.error = None
+    await session.commit()
+    logger.info(
+        "parsed ais %s source=%s in=%s out=%s tokens",
+        row.id,
+        data.source,
         audit.get("input_tokens"),
         audit.get("output_tokens"),
     )

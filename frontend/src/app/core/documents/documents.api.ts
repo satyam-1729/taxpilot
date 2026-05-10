@@ -1,7 +1,7 @@
 import { environment } from '../../../environments/environment';
 
 export type DocStatus = 'queued' | 'parsing' | 'parsed' | 'failed' | 'needs_password';
-export type DocType = 'form16' | 'capital_gains' | 'unknown';
+export type DocType = 'form16' | 'capital_gains' | 'ais' | 'unknown';
 
 export interface DocumentRow {
   id: string;

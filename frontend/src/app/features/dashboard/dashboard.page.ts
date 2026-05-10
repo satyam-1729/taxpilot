@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -19,7 +19,8 @@ import {
 } from 'ng-apexcharts';
 
 import { AuthService } from '../../core/auth/auth.service';
-import { DocumentRow, listDocuments } from '../../core/documents/documents.api';
+import { DocumentsStore } from '../../core/documents/documents.store';
+import { FyService, fyOf } from '../../core/fy/fy.service';
 import { compactINR, formatINR as formatINRFn, privacyMode } from '../../core/ui/privacy';
 
 interface DonutOptions {
@@ -61,31 +62,14 @@ interface BarOptions {
           <h1 class="font-display text-3xl md:text-4xl font-extrabold text-primary tracking-tight leading-tight">
             {{ greeting() }}, {{ firstName() }}
           </h1>
-          @if (selectedFy) {
+          @if (selectedFy()) {
             <p class="text-on-surface-variant text-base mt-2">
-              Here's your tax snapshot for <span class="font-semibold text-primary">FY {{ selectedFy }}</span>.
+              Here's your tax snapshot for <span class="font-semibold text-primary">FY {{ selectedFy() }}</span>.
             </p>
           } @else {
             <p class="text-on-surface-variant text-base mt-2">
               Upload a Form 16 to see your tax dashboard come alive.
             </p>
-          }
-        </div>
-
-        <div class="flex items-center gap-3">
-          @if (availableFys().length > 0) {
-            <label class="flex items-center gap-2 bg-surface-container-lowest rounded-xl pl-4 pr-2 py-2 shadow-sm">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Fiscal year</span>
-              <select
-                class="bg-transparent border-0 outline-none text-primary font-headline font-bold text-sm pr-1 cursor-pointer"
-                [(ngModel)]="selectedFy"
-                (ngModelChange)="onFyChange()"
-              >
-                @for (fy of availableFys(); track fy) {
-                  <option [value]="fy">FY {{ fy }}</option>
-                }
-              </select>
-            </label>
           }
         </div>
       </header>
@@ -94,7 +78,7 @@ interface BarOptions {
         <div class="bg-surface-container-low rounded-2xl p-12 text-center text-on-surface-variant">
           Loading…
         </div>
-      } @else if (availableFys().length === 0) {
+      } @else if (form16Docs().length === 0) {
         <div class="bg-surface-container-lowest rounded-3xl p-12 text-center shadow-sm">
           <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-fixed flex items-center justify-center mb-4">
             <span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
@@ -232,10 +216,12 @@ interface BarOptions {
 })
 export class DashboardPage implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly docsStore = inject(DocumentsStore);
 
   readonly user = computed(() => this.auth.user());
-  readonly loading = signal(true);
-  readonly docs = signal<DocumentRow[]>([]);
+  /** Loading is only true until the shared store has resolved its first fetch. */
+  readonly loading = computed(() => !this.docsStore.loaded());
+  readonly docs = this.docsStore.docs;
 
   readonly firstName = computed(() => {
     const u = this.user();
@@ -244,25 +230,17 @@ export class DashboardPage implements OnInit {
     return 'there';
   });
 
-  selectedFy = '';
+  // FY selection lives in the global FyService — header dropdown drives this.
+  private readonly fy = inject(FyService);
+  protected readonly selectedFy = this.fy.selectedFy;
 
   /** Dashboard scope: Form 16 documents only. Capital gains live on /investments. */
   readonly form16Docs = computed(() =>
     this.docs().filter(d => d.doc_type === 'form16' && d.status === 'parsed'),
   );
 
-  readonly availableFys = computed(() => {
-    const fys = new Set<string>();
-    for (const d of this.form16Docs()) {
-      if (!d.ay) continue;
-      const fy = (d.parsed_json?.fy as string) || ayToFy(d.ay);
-      if (fy) fys.add(fy);
-    }
-    return Array.from(fys).sort().reverse();
-  });
-
   readonly sourceDocs = computed(() =>
-    this.form16Docs().filter(d => this.fyOf(d) === this.selectedFy),
+    this.form16Docs().filter(d => fyOf(d) === this.selectedFy()),
   );
 
   readonly agg = computed(() => {
@@ -381,26 +359,12 @@ export class DashboardPage implements OnInit {
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
   async ngOnInit(): Promise<void> {
-    await this.refresh();
-  }
-
-  async refresh(): Promise<void> {
     const token = this.auth.token();
     if (!token) return;
-    try {
-      const list = await listDocuments(token);
-      this.docs.set(list);
-      const fys = this.availableFys();
-      if (!this.selectedFy && fys.length > 0) {
-        this.selectedFy = fys[0]; // default to most recent FY
-      }
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  onFyChange(): void {
-    // Computeds re-run automatically; nothing more needed.
+    // Cache hit → renders synchronously on tab return. Cache miss → one
+    // shared request across components.
+    const list = await this.docsStore.ensureLoaded(token);
+    this.fy.register(list);
   }
 
   greeting(): string {
@@ -413,12 +377,6 @@ export class DashboardPage implements OnInit {
 
   /** Exposed as a field so the template can call it directly. */
   protected readonly formatINR = formatINRFn;
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  private fyOf(d: DocumentRow): string {
-    return (d.parsed_json?.fy as string) || ayToFy(d.ay) || '';
-  }
 
   /** Sums {label → amount} across all source docs from a parsed_json path like 'salary.components'. */
   private aggregateLineItems(path: 'salary.components' | 'chapter_vi_a'): Map<string, number> {
@@ -453,17 +411,6 @@ export class DashboardPage implements OnInit {
   }
 }
 
-// ── Module-level utilities ─────────────────────────────────────────────────
-
-function ayToFy(ay: string | null): string {
-  // AY 2026-27 → FY 2025-26 (FY = AY - 1)
-  if (!ay) return '';
-  const m = ay.match(/^(\d{4})-(\d{2})$/);
-  if (!m) return '';
-  const fyStart = Number(m[1]) - 1;
-  const fyEndShort = String(Number(m[2]) - 1).padStart(2, '0');
-  return `${fyStart}-${fyEndShort}`;
-}
 
 /** High-contrast palette for donut + horizontal-bar (each segment a distinct hue). */
 const CHART_PALETTE = [

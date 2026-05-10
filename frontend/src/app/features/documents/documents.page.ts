@@ -3,12 +3,13 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { DocumentsStore } from '../../core/documents/documents.store';
+import { FyService } from '../../core/fy/fy.service';
 import {
   DocStatus,
   DocType,
   DocumentRow,
   deleteDocument,
-  listDocuments,
   submitPassword,
   uploadDocument,
 } from '../../core/documents/documents.api';
@@ -339,9 +340,12 @@ import { formatINR as formatINRFn } from '../../core/ui/privacy';
 })
 export class DocumentsPage implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
+  private readonly fy = inject(FyService);
+  private readonly docsStore = inject(DocumentsStore);
 
-  readonly rows = signal<DocumentRow[]>([]);
-  readonly loading = signal(true);
+  /** Source of truth lives in the shared store so other pages stay in sync. */
+  readonly rows = this.docsStore.docs;
+  readonly loading = computed(() => !this.docsStore.loaded());
   readonly uploading = signal(false);
   readonly uploadError = signal<string | null>(null);
   readonly uploadInfo = signal<string | null>(null);
@@ -377,12 +381,15 @@ export class DocumentsPage implements OnInit, OnDestroy {
     const token = this.auth.token();
     if (!token) return;
     try {
-      const data = await listDocuments(token);
-      this.rows.set(data);
+      // Force a fresh fetch through the shared store. Cache invalidation
+      // happens automatically: every other page reading docsStore.docs()
+      // sees the new list, and ReconcileStore drops its stale FY caches.
+      const data = await this.docsStore.refresh(token);
+      // Keep the global FY dropdown's options in sync — even when the user
+      // lands directly on /documents and never visits the analytics pages.
+      this.fy.register(data);
     } catch (e: any) {
       this.uploadError.set(e?.message ?? 'Could not load documents.');
-    } finally {
-      this.loading.set(false);
     }
     this.schedulePollIfNeeded();
   }
@@ -501,8 +508,8 @@ export class DocumentsPage implements OnInit, OnDestroy {
     try {
       await deleteDocument(token, victim.id);
       this.deleteCandidate.set(null);
-      // Optimistic remove + refresh from server
-      this.rows.set(this.rows().filter(r => r.id !== victim.id));
+      // Optimistic remove on the shared store, then refresh from server.
+      this.docsStore.setDocs(this.rows().filter(r => r.id !== victim.id));
       await this.refresh();
     } catch (e: any) {
       this.deleteError.set(e?.message ?? 'Could not delete the document.');
@@ -570,6 +577,7 @@ export class DocumentsPage implements OnInit, OnDestroy {
     return {
       form16: 'Form 16',
       capital_gains: 'Capital gains',
+      ais: 'AIS / 26AS',
       unknown: 'Unknown',
     }[t];
   }
@@ -578,20 +586,23 @@ export class DocumentsPage implements OnInit, OnDestroy {
     return {
       form16: 'bg-primary-fixed text-primary',
       capital_gains: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
+      ais: 'bg-secondary-container text-on-secondary-container',
       unknown: 'bg-surface-container-high text-on-surface-variant',
     }[t];
   }
 
   /**
    * Which tax regime(s) does a document feed into?
-   * Form 16 and capital-gains are regime-agnostic (slabs apply to salary, flat
-   * rates apply to gains). Future doc types (rent receipts, 80C proofs, NPS
-   * Tier-I, home-loan interest) are Old-only — extend this map as parsers ship.
+   * Form 16, capital-gains, and AIS are regime-agnostic — they describe income
+   * the IT Dept has visibility on, not deductions. Future doc types (rent
+   * receipts, 80C proofs, NPS Tier-I, home-loan interest) are Old-only —
+   * extend this map as parsers ship.
    */
   regimeTag(t: DocType): 'old' | 'new' | 'both' | null {
     return ({
       form16: 'both',
       capital_gains: 'both',
+      ais: 'both',
       unknown: null,
     } as const)[t];
   }

@@ -71,6 +71,97 @@ class Form16Data(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# AIS / TIS extracted shape
+#
+# The Annual Information Statement (and its sister Taxpayer Information
+# Summary) is the IT Dept's consolidated ledger of every reported transaction
+# against a PAN. The schema below captures the *aggregates* the tax engine
+# needs and a normalized breakdown of the source-level entries the
+# reconciler will compare against Form 16 / bank / broker docs.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class AisTaxpayer(BaseModel):
+    name: str | None = None
+    pan: str | None = None
+    aadhaar_last4: str | None = None
+
+
+class AisTdsEntry(BaseModel):
+    """One row from Part B (TDS/TCS) — what a deductor reported against this PAN."""
+
+    deductor_name: str | None = None
+    deductor_tan: str | None = None
+    section: str | None = Field(None, description="TDS section, e.g. '192' (salary), '194A' (interest)")
+    amount_paid: Decimal | None = None
+    tds_deducted: Decimal | None = None
+
+
+class AisInterestEntry(BaseModel):
+    """SFT-016 (savings/FD interest) — one bank/payer per row."""
+
+    payer_name: str | None = None
+    account_last4: str | None = None
+    section: str | None = None
+    amount: Decimal
+
+
+class AisDividendEntry(BaseModel):
+    payer_name: str | None = None
+    isin: str | None = None
+    amount: Decimal
+
+
+class AisCapitalGains(BaseModel):
+    """Capital-gains aggregates as reported in AIS (cross-checked against broker P&L)."""
+
+    stcg_111a: Decimal | None = None
+    stcg_non_equity: Decimal | None = None
+    ltcg_112a: Decimal | None = None
+    ltcg_non_equity: Decimal | None = None
+
+
+class AisOtherIncome(BaseModel):
+    label: str
+    section: str | None = None
+    amount: Decimal
+
+
+class AisData(BaseModel):
+    """Versioned schema for parsed AIS / Form 26AS / TIS data."""
+
+    schema_version: int = 1
+    source: str | None = Field(None, description="'ais', 'tis', or '26as'")
+    ay: str | None = None
+    fy: str | None = None
+    taxpayer: AisTaxpayer = Field(default_factory=AisTaxpayer)
+
+    tds_entries: list[AisTdsEntry] = Field(default_factory=list)
+    total_tds: Decimal | None = None
+    salary_total: Decimal | None = Field(
+        None, description="Sum of section-192 amounts paid (cross-check against Form 16 gross)."
+    )
+
+    interest_income: list[AisInterestEntry] = Field(default_factory=list)
+    interest_total: Decimal | None = None
+
+    dividends: list[AisDividendEntry] = Field(default_factory=list)
+    dividends_total: Decimal | None = None
+
+    capital_gains: AisCapitalGains = Field(default_factory=AisCapitalGains)
+
+    other_income: list[AisOtherIncome] = Field(default_factory=list)
+    exempt_income_total: Decimal | None = None
+
+    advance_tax_paid: Decimal | None = None
+    self_assessment_tax_paid: Decimal | None = None
+    refunds_received: Decimal | None = None
+
+    total_income_reported: Decimal | None = Field(
+        None, description="TIS taxpayer-summary total income (only present in TIS variant)."
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # API I/O
 # ─────────────────────────────────────────────────────────────────────────────
 

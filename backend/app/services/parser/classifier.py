@@ -21,7 +21,7 @@ from app.services.parser.xlsx import is_xlsx, xlsx_to_text
 
 logger = logging.getLogger(__name__)
 
-DocType = Literal["form16", "capital_gains", "unknown"]
+DocType = Literal["form16", "capital_gains", "ais", "unknown"]
 
 
 # Patterns that strongly indicate a Form 16 (TDS certificate)
@@ -31,6 +31,23 @@ FORM16_PATTERNS = [
     re.compile(r"certificate\s+under\s+section\s+203", re.IGNORECASE),
     re.compile(r"deduction\s+of\s+tax\s+at\s+source", re.IGNORECASE),
     re.compile(r"\btds\s+certificate\b", re.IGNORECASE),
+]
+
+# Patterns that strongly indicate an AIS / TIS / Form 26AS
+# AIS and 26AS overlap heavily (26AS is a subset of AIS); we route both to the
+# same parser since the same Anthropic schema captures both. TIS is the
+# taxpayer-summary roll-up of AIS — same parser handles it via the `source`
+# discriminator in the extracted data.
+AIS_PATTERNS = [
+    re.compile(r"annual\s+information\s+statement", re.IGNORECASE),
+    re.compile(r"taxpayer\s+information\s+summary", re.IGNORECASE),
+    re.compile(r"\bform\s*(no\.?)?\s*26\s*as\b", re.IGNORECASE),
+    # AIS PDF cover always carries this exact phrase in the IT Dept template.
+    re.compile(r"information\s+statement\s+for\s+pan", re.IGNORECASE),
+    # TIS heading on the summary page.
+    re.compile(r"\btaxpayer\s+information\s+summary\b", re.IGNORECASE),
+    # 26AS header in the legacy TRACES format.
+    re.compile(r"annual\s+tax\s+statement", re.IGNORECASE),
 ]
 
 # Patterns that strongly indicate a capital gains / broker tax statement.
@@ -117,9 +134,15 @@ def _extract_text(content: bytes) -> str:
 
 def _classify_text(text: str) -> DocType:
     form16_hits = sum(1 for p in FORM16_PATTERNS if p.search(text))
+    ais_hits = sum(1 for p in AIS_PATTERNS if p.search(text))
     cg_hits = sum(1 for p in CAPITAL_GAINS_PATTERNS if p.search(text))
     has_broker = bool(KNOWN_BROKERS.search(text))
     has_finance = bool(FINANCIAL_HINTS.search(text))
+
+    # AIS / 26AS / TIS headers are distinctive — check before form16 because a
+    # 26AS PDF can incidentally contain "TDS Certificate" text in its sections.
+    if ais_hits >= 1:
+        return "ais"
 
     # Form 16 is unambiguous when its patterns match — they're very specific.
     if form16_hits >= 1:

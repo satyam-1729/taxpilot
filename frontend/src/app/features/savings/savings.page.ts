@@ -1,10 +1,14 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
-import { DocumentRow, listDocuments } from '../../core/documents/documents.api';
+import { DocumentRow } from '../../core/documents/documents.api';
+import { DocumentsStore } from '../../core/documents/documents.store';
+import { FyService, fyOf } from '../../core/fy/fy.service';
+import { Severity } from '../../core/reconcile/reconcile.api';
+import { ReconcileStore } from '../../core/reconcile/reconcile.store';
 import { formatINR as formatINRFn, privacyMode } from '../../core/ui/privacy';
 
 interface LineItem {
@@ -60,10 +64,10 @@ interface ChecklistItem {
           <h1 class="font-display text-3xl md:text-4xl font-extrabold text-primary tracking-tight leading-tight">
             Regime Intelligence
           </h1>
-          @if (selectedFy) {
+          @if (selectedFy()) {
             <p class="text-on-surface-variant text-base mt-2 max-w-xl">
               Old vs New regime, computed on your parsed Form 16 for
-              <span class="font-semibold text-primary">FY {{ selectedFy }}</span>.
+              <span class="font-semibold text-primary">FY {{ selectedFy() }}</span>.
             </p>
           } @else {
             <p class="text-on-surface-variant text-base mt-2 max-w-xl">
@@ -71,28 +75,17 @@ interface ChecklistItem {
             </p>
           }
         </div>
-
-        <div class="flex items-center gap-3">
-          @if (availableFys().length > 0) {
-            <label class="flex items-center gap-2 bg-surface-container-lowest rounded-xl pl-4 pr-2 py-2 shadow-sm">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Fiscal year</span>
-              <select
-                class="bg-transparent border-0 outline-none text-primary font-headline font-bold text-sm pr-1 cursor-pointer"
-                [(ngModel)]="selectedFy"
-              >
-                @for (fy of availableFys(); track fy) {
-                  <option [value]="fy">FY {{ fy }}</option>
-                }
-              </select>
-            </label>
-          }
-        </div>
       </header>
 
       @if (loading()) {
-        <div class="bg-surface-container-low rounded-2xl p-12 text-center text-on-surface-variant">
-          Loading…
-        </div>
+        <!-- Skeleton mirrors the real layout so there's no jarring jump on data arrival. -->
+        <section class="bg-primary/10 rounded-2xl h-28 mb-6 sk-shimmer"></section>
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <article class="bg-surface-container-lowest rounded-2xl h-72 sk-shimmer"></article>
+          <article class="bg-surface-container-lowest rounded-2xl h-72 sk-shimmer"></article>
+        </section>
+        <section class="bg-surface-container-lowest rounded-2xl h-44 mb-6 sk-shimmer"></section>
+        <section class="bg-surface-container-lowest rounded-2xl h-96 sk-shimmer"></section>
       } @else if (availableFys().length === 0) {
         <div class="bg-surface-container-lowest rounded-3xl p-12 text-center shadow-sm">
           <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-fixed flex items-center justify-center mb-4">
@@ -108,28 +101,122 @@ interface ChecklistItem {
         </div>
       } @else {
 
-        <!-- Recommendation banner -->
-        <section class="bg-primary rounded-2xl p-6 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center text-white">
-          <div class="md:col-span-2">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim mb-1">Our recommendation</p>
-            <h2 class="font-headline font-extrabold text-white text-2xl md:text-3xl">
-              {{ recommendation().headline }}
-            </h2>
-            <p class="text-primary-fixed/90 text-sm mt-2 leading-relaxed">
-              {{ recommendation().rationale }}
-            </p>
-          </div>
-          <div class="md:text-right">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim mb-1">
-              {{ recommendation().savingsLabel }}
-            </p>
-            <p class="font-headline font-extrabold text-secondary-fixed text-3xl">
-              {{ formatINR(recommendation().savings) }}
-            </p>
-          </div>
-        </section>
+        <!-- Recommendation banner — only shown when Form 16 exists for the selected FY -->
+        @if (sourceDocs().length > 0) {
+          <section class="bg-primary rounded-2xl p-6 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center text-white">
+            <div class="md:col-span-2">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim mb-1">Our recommendation</p>
+              <h2 class="font-headline font-extrabold text-white text-2xl md:text-3xl">
+                {{ recommendation().headline }}
+              </h2>
+              <p class="text-primary-fixed/90 text-sm mt-2 leading-relaxed">
+                {{ recommendation().rationale }}
+              </p>
+            </div>
+            <div class="md:text-right">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim mb-1">
+                {{ recommendation().savingsLabel }}
+              </p>
+              <p class="font-headline font-extrabold text-secondary-fixed text-3xl">
+                {{ formatINR(recommendation().savings) }}
+              </p>
+            </div>
+          </section>
+        }
+
+        <!-- Cross-checks vs AIS -->
+        @if (reconcileLoading() && findings().length === 0) {
+          <section class="bg-surface-container-lowest rounded-2xl h-32 mb-6 sk-shimmer"></section>
+        } @else if (findings().length > 0) {
+          <section class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm mb-6">
+            <header class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+              <div>
+                <h3 class="font-headline font-bold text-primary">Cross-checks vs AIS</h3>
+                <p class="text-on-surface-variant text-sm mt-1">
+                  How your uploaded documents line up with what the IT Department has on file.
+                </p>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                @if (reconcileLoading()) {
+                  <span class="inline-flex items-center gap-1 text-on-surface-variant text-[11px] uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                    Refreshing
+                  </span>
+                }
+                @if (reconcileSummary().errors > 0) {
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-error-container/40 text-on-error-container font-bold uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">error</span>
+                    {{ reconcileSummary().errors }} action{{ reconcileSummary().errors === 1 ? '' : 's' }}
+                  </span>
+                }
+                @if (reconcileSummary().warnings > 0) {
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-tertiary-container/30 text-tertiary-container font-bold uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">warning</span>
+                    {{ reconcileSummary().warnings }} warning{{ reconcileSummary().warnings === 1 ? '' : 's' }}
+                  </span>
+                }
+                @if (aisDocCount() === 0) {
+                  <a routerLink="/documents" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-white font-bold uppercase tracking-widest text-[10px] hover:opacity-95 transition">
+                    <span class="material-symbols-outlined text-sm">upload</span>
+                    Upload AIS
+                  </a>
+                }
+              </div>
+            </header>
+
+            <ul class="space-y-2">
+              @for (f of findings(); track f.code + f.fact) {
+                <li
+                  class="rounded-xl px-4 py-3 flex items-start gap-3"
+                  [ngClass]="severityClasses(f.severity)"
+                >
+                  <span
+                    class="material-symbols-outlined mt-0.5 text-xl"
+                    style="font-variation-settings:'FILL' 1;"
+                  >
+                    {{ severityIcon(f.severity) }}
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span class="font-headline font-bold">{{ f.fact }}</span>
+                      <span class="text-[10px] font-bold uppercase tracking-widest opacity-70">
+                        {{ severityLabel(f.severity) }}
+                      </span>
+                      @if (f.delta != null && f.delta !== 0) {
+                        <span class="text-xs font-semibold tabular-nums">
+                          Δ {{ f.delta > 0 ? '+' : '' }}{{ formatINR(f.delta) }}
+                        </span>
+                      }
+                    </div>
+                    <div class="text-xs opacity-80 mt-0.5 tabular-nums">
+                      {{ f.source_a.label }}:
+                      {{ f.source_a.amount == null ? '—' : formatINR(f.source_a.amount) }}
+                      &nbsp;·&nbsp;
+                      {{ f.source_b.label }}:
+                      {{ f.source_b.amount == null ? '—' : formatINR(f.source_b.amount) }}
+                    </div>
+                    <p class="text-sm mt-1 leading-relaxed">{{ f.suggestion }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
 
         <!-- Side-by-side regime cards -->
+        @if (sourceDocs().length === 0) {
+          <section class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm mb-6 flex items-start gap-3">
+            <span class="material-symbols-outlined text-primary text-2xl mt-0.5" style="font-variation-settings:'FILL' 1;">info</span>
+            <div class="flex-1">
+              <p class="font-headline font-bold text-primary">No Form 16 for FY {{ selectedFy() }}</p>
+              <p class="text-on-surface-variant text-sm mt-1">
+                Cross-checks against AIS still work, but the regime calculator needs a Form 16
+                to compute taxable income. Switch to a year with a Form 16, or
+                <a routerLink="/documents" class="text-primary font-semibold underline">upload one</a>.
+              </p>
+            </div>
+          </section>
+        } @else {
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           @for (r of [oldRegime(), newRegime()]; track r.regime) {
             <article
@@ -192,6 +279,7 @@ interface ChecklistItem {
             </article>
           }
         </section>
+        }
 
         <!-- What we used -->
         <section class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm mb-6">
@@ -285,31 +373,73 @@ interface ChecklistItem {
   styles: [`
     :host { display: block; min-height: calc(100vh - 64px); background: #f9f9fb; }
     select { font-family: 'Manrope', sans-serif; }
+    .sk-shimmer {
+      position: relative; overflow: hidden;
+      background: linear-gradient(90deg, rgba(0,6,102,0.04) 0%, rgba(0,6,102,0.08) 50%, rgba(0,6,102,0.04) 100%);
+      background-size: 200% 100%;
+      animation: sk-shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes sk-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   `],
 })
 export class SavingsPage implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly docsStore = inject(DocumentsStore);
+  private readonly reconcileStore = inject(ReconcileStore);
 
-  readonly loading = signal(true);
-  readonly docs = signal<DocumentRow[]>([]);
+  // Page-level "loading" only covers the very first cold load — once the
+  // stores have data, switching tabs back is instant. Subsequent FY changes
+  // surface their freshness via reconcileStore.isLoading(fy) for the inline
+  // shimmer on the cross-checks section.
+  readonly loading = computed(() => !this.docsStore.loaded());
 
-  selectedFy = '';
+  /** Docs come straight from the shared store — no per-page fetch. */
+  readonly docs = this.docsStore.docs;
+
+  // FY selection lives in a global service so the header dropdown drives every
+  // page. The page-level computed signals below all reactively re-derive when
+  // selectedFy() flips.
+  private readonly fy = inject(FyService);
+  protected readonly selectedFy = this.fy.selectedFy;
+  protected readonly availableFys = this.fy.availableFys;
+
+  // Reconciliation read straight off the shared cache. Switching FYs is
+  // instant for any FY we've already fetched; misses fall through to a
+  // single API call (deduped across components).
+  readonly reconcileLoading = computed(() => {
+    const fy = this.selectedFy();
+    return fy ? this.reconcileStore.isLoading(fy) : false;
+  });
+
+  readonly findings = computed(() => {
+    const fy = this.selectedFy();
+    if (!fy) return [];
+    return this.reconcileStore.byFy(fy)?.findings ?? [];
+  });
+
+  readonly reconcileSummary = computed(() => {
+    const fy = this.selectedFy();
+    return (fy && this.reconcileStore.byFy(fy)?.summary) || { errors: 0, warnings: 0, info: 0 };
+  });
+
+  readonly aisDocCount = computed(() => {
+    const fy = this.selectedFy();
+    return (fy && this.reconcileStore.byFy(fy)?.doc_counts.ais) || 0;
+  });
+
+  readonly errorFindings = computed(() => this.findings().filter(f => f.severity === 'error'));
+  readonly warningFindings = computed(() => this.findings().filter(f => f.severity === 'warning'));
+  readonly infoFindings = computed(() => this.findings().filter(f => f.severity === 'info'));
 
   readonly form16Docs = computed(() =>
     this.docs().filter(d => d.doc_type === 'form16' && d.status === 'parsed'),
   );
 
-  readonly availableFys = computed(() => {
-    const fys = new Set<string>();
-    for (const d of this.form16Docs()) {
-      const fy = (d.parsed_json?.fy as string) || ayToFy(d.ay);
-      if (fy) fys.add(fy);
-    }
-    return Array.from(fys).sort().reverse();
-  });
-
   readonly sourceDocs = computed(() =>
-    this.form16Docs().filter(d => fyOf(d) === this.selectedFy),
+    this.form16Docs().filter(d => fyOf(d) === this.selectedFy()),
   );
 
   // ── Aggregate raw line items from all source docs for the selected FY ────
@@ -339,7 +469,7 @@ export class SavingsPage implements OnInit {
 
   readonly oldRegime = computed<RegimeBreakdown>(() => {
     privacyMode();
-    const fy = this.selectedFy;
+    const fy = this.selectedFy();
     const gross = this.grossSalary();
     const sec16 = this.section16().length
       ? this.section16()
@@ -353,7 +483,7 @@ export class SavingsPage implements OnInit {
 
   readonly newRegime = computed<RegimeBreakdown>(() => {
     privacyMode();
-    const fy = this.selectedFy;
+    const fy = this.selectedFy();
     const gross = this.grossSalary();
     const stdDed = stdDedNew(fy);
     const sec16: LineItem[] = [{ label: 'Standard deduction', section: '16(ia)', amount: stdDed }];
@@ -424,6 +554,13 @@ export class SavingsPage implements OnInit {
       }
       return sum;
     };
+    // True once the user has uploaded an AIS / TIS / 26AS *for the selected
+    // FY* that parsed successfully. The checklist is FY-scoped — an AIS for
+    // 2025-26 must not satisfy the 2024-25 row.
+    const fy = this.selectedFy();
+    const aisDetected = this.docs().some(
+      d => d.doc_type === 'ais' && d.status === 'parsed' && fyOf(d) === fy,
+    );
     const item = (
       id: string,
       section: string,
@@ -515,13 +652,19 @@ export class SavingsPage implements OnInit {
         '~14% of basic', 200000, 'both',
         li => /80CCD\s*\(2\)/i.test(li.section ?? ''),
       ),
-      item(
-        'ais', 'AIS / 26AS',
-        'AIS / Form 26AS download',
-        'Cross-checks TDS, dividends, interest, and high-value transactions reported to the IT Dept.',
-        'Verification', 0, 'both',
-        () => false,
-      ),
+      {
+        id: 'ais',
+        section: 'AIS / 26AS',
+        title: 'AIS / Form 26AS download',
+        description: 'Cross-checks TDS, dividends, interest, and high-value transactions reported to the IT Dept.',
+        cap: 'Verification',
+        capValue: 0,
+        regime: 'both',
+        detected: aisDetected,
+        detectedAmount: 0,
+        headroom: 0,
+        potentialSavings: 0,
+      },
     ];
   });
 
@@ -529,20 +672,44 @@ export class SavingsPage implements OnInit {
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
+  constructor() {
+    // Reactively pull reconciliation findings from the cache whenever the
+    // global FY changes. ReconcileStore handles dedup and per-FY caching —
+    // a hit returns synchronously, a miss fires one network request.
+    effect(() => {
+      const fy = this.selectedFy();
+      if (!fy) return;
+      const token = this.auth.token();
+      if (!token) return;
+      void this.reconcileStore.ensureFor(token, fy).catch(() => {
+        // Reconcile is advisory; swallow failures so the page still renders.
+      });
+    });
+  }
+
   async ngOnInit(): Promise<void> {
     const token = this.auth.token();
-    if (!token) {
-      this.loading.set(false);
-      return;
-    }
-    try {
-      const list = await listDocuments(token);
-      this.docs.set(list);
-      const fys = this.availableFys();
-      if (!this.selectedFy && fys.length > 0) this.selectedFy = fys[0];
-    } finally {
-      this.loading.set(false);
-    }
+    if (!token) return;
+    // Cache hit → returns synchronously, page renders without a flicker.
+    // Cache miss → fires one request shared across components.
+    const list = await this.docsStore.ensureLoaded(token);
+    this.fy.register(list);
+  }
+
+  severityIcon(s: Severity): string {
+    return { error: 'error', warning: 'warning', info: 'info' }[s];
+  }
+
+  severityClasses(s: Severity): string {
+    return {
+      error: 'bg-error-container/40 text-on-error-container ring-1 ring-error-container',
+      warning: 'bg-tertiary-container/30 text-tertiary-container ring-1 ring-tertiary-container/40',
+      info: 'bg-surface-container-high text-on-surface-variant ring-1 ring-outline-variant/40',
+    }[s];
+  }
+
+  severityLabel(s: Severity): string {
+    return { error: 'Action needed', warning: 'Heads up', info: 'FYI' }[s];
   }
 
   protected readonly formatINR = formatINRFn;
@@ -691,17 +858,4 @@ function marginalRateOld(taxable: number): number {
 
 function sumAmounts(items: LineItem[]): number {
   return items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
-}
-
-function ayToFy(ay: string | null): string {
-  if (!ay) return '';
-  const m = ay.match(/^(\d{4})-(\d{2})$/);
-  if (!m) return '';
-  const fyStart = Number(m[1]) - 1;
-  const fyEndShort = String(Number(m[2]) - 1).padStart(2, '0');
-  return `${fyStart}-${fyEndShort}`;
-}
-
-function fyOf(d: DocumentRow): string {
-  return (d.parsed_json?.fy as string) || ayToFy(d.ay) || '';
 }

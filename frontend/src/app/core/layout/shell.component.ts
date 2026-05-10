@@ -4,12 +4,13 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../auth/auth.service';
+import { FySelectorComponent } from '../fy/fy-selector.component';
 import { privacyMode, togglePrivacy } from '../ui/privacy';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FySelectorComponent],
   template: `
     @if (!hideHeader()) {
       <header class="shell-header">
@@ -31,6 +32,9 @@ import { privacyMode, togglePrivacy } from '../ui/privacy';
         }
 
         <div class="auth-links">
+          @if (auth.isLoggedIn() && auth.isVerified()) {
+            <app-fy-selector />
+          }
           @if (auth.isLoggedIn()) {
             <button
               class="icon-btn"

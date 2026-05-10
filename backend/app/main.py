@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.documents import router as documents_router
 from app.api.profile import router as profile_router
+from app.api.reconcile import router as reconcile_router
 from app.core.config import get_settings
 from app.services.firebase import init_firebase
 from app.services.redis_client import close_redis, init_redis
@@ -33,6 +34,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(profile_router, prefix="/api")
+app.include_router(reconcile_router, prefix="/api")
 
 
 @app.get("/api/health")
